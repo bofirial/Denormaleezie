@@ -19,7 +19,7 @@ namespace Denormaleezie
             this.jsonDenormalizer = jsonDenormalizer;
         }
 
-        public string DenormalizeToJSON<T>(IEnumerable<T> objectToDenormalize)
+        public string DenormalizeToJSON<T>(List<T> objectToDenormalize)
         {
             return this.jsonDenormalizer.DenormalizeToJSON(objectToDenormalize);
         }

@@ -9,6 +9,6 @@ namespace Denormaleezie.Denormalizers
 {
     public interface IJSONDenormalizer
     {
-        string DenormalizeToJSON<T>(IEnumerable<T> objectToDenormalize);
+        string DenormalizeToJSON<T>(List<T> objectToDenormalize);
     }
 }

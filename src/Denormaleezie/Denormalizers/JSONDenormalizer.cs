@@ -16,7 +16,7 @@ namespace Denormaleezie.Denormalizers
 
         }
 
-        public virtual string DenormalizeToJSON<T>(IEnumerable<T> objectToDenormalize)
+        public virtual string DenormalizeToJSON<T>(List<T> objectToDenormalize)
         {
             if (null == objectToDenormalize)
             {
@@ -34,29 +34,29 @@ namespace Denormaleezie.Denormalizers
             return denormalizedJson;
         }
 
-        internal virtual IEnumerable<IEnumerable<IEnumerable<object>>> ConvertToDenormalizedLists<T>(IEnumerable<T> objectToDenormalize)
+        internal virtual List<List<List<object>>> ConvertToDenormalizedLists<T>(List<T> objectToDenormalize)
         {
             if (null == objectToDenormalize)
             {
                 throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
             }
 
-            IEnumerable<IEnumerable<object>> denormalizedDataLists = CreateDenormalizedDataLists(objectToDenormalize);
-            IEnumerable<IEnumerable<object>> dataStructureLists = CreateDataStructureLists(objectToDenormalize, denormalizedDataLists);
+            List<List<object>> denormalizedDataLists = CreateDenormalizedDataLists(objectToDenormalize);
+            List<List<object>> dataStructureLists = CreateDataStructureLists(objectToDenormalize, denormalizedDataLists);
 
-            return new List<IEnumerable<IEnumerable<object>>>() {
+            return new List<List<List<object>>>() {
                 denormalizedDataLists, dataStructureLists
             };
         }
 
-        internal virtual IEnumerable<IEnumerable<object>> CreateDenormalizedDataLists<T>(IEnumerable<T> objectToDenormalize)
+        internal virtual List<List<object>> CreateDenormalizedDataLists<T>(List<T> objectToDenormalize)
         {
             if (null == objectToDenormalize)
             {
                 throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
             }
 
-            List<IEnumerable<object>> denormalizedDataLists = new List<IEnumerable<object>>();
+            List<List<object>> denormalizedDataLists = new List<List<object>>();
 
             IEnumerable<PropertyInfo> propInfos = typeof(T).GetProperties();
 
@@ -66,9 +66,9 @@ namespace Denormaleezie.Denormalizers
 
                 dataList.Add(propInfo.Name);
 
-                IEnumerable<object> denormalizedDataListForProp = CreateDenormalizedDataListForProperty(objectToDenormalize, propInfo);
+                List<object> denormalizedDataListForProp = CreateDenormalizedDataListForProperty(objectToDenormalize, propInfo);
 
-                if (denormalizedDataListForProp.Count() < objectToDenormalize.Count())
+                if (denormalizedDataListForProp.Count < objectToDenormalize.Count)
                 {
                     dataList.AddRange(denormalizedDataListForProp);
                 }
@@ -79,7 +79,7 @@ namespace Denormaleezie.Denormalizers
             return denormalizedDataLists;
         }
 
-        internal virtual IEnumerable<object> CreateDenormalizedDataListForProperty<T>(IEnumerable<T> objectToDenormalize, PropertyInfo property)
+        internal virtual List<object> CreateDenormalizedDataListForProperty<T>(List<T> objectToDenormalize, PropertyInfo property)
         {
             if (null == objectToDenormalize)
             {
@@ -91,13 +91,84 @@ namespace Denormaleezie.Denormalizers
                 throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
             }
 
-            return objectToDenormalize.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).GroupBy(k => k).Select(k => k.Key);
+            return objectToDenormalize.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).Distinct().ToList();
         }
 
-        internal virtual IEnumerable<IEnumerable<object>> CreateDataStructureLists<T>(IEnumerable<T> objectToDenormalize
-            , IEnumerable<IEnumerable<object>> denormalizedData)
+        internal virtual List<List<object>> CreateDataStructureLists<T>(List<T> objectToDenormalize
+            , List<List<object>> denormalizedData)
         {
-            return null;
+            if (null == objectToDenormalize)
+            {
+                throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
+            }
+
+            if (null == denormalizedData)
+            {
+                throw new ArgumentException(nameof(denormalizedData) + " must not be null.", nameof(denormalizedData));
+            }
+
+            List<List<object>> dataStructureLists = new List<List<object>>();
+
+            foreach (var denormalizeItem in objectToDenormalize)
+            {
+                dataStructureLists.Add(CreateDataStructureList(denormalizeItem, denormalizedData));
+            }
+
+            return dataStructureLists;
+        }
+
+        internal virtual List<object> CreateDataStructureList<T>(T objectToDenormalize
+            , List<List<object>> denormalizedData)
+        {
+            if (null == objectToDenormalize)
+            {
+                throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
+            }
+
+            if (null == denormalizedData)
+            {
+                throw new ArgumentException(nameof(denormalizedData) + " must not be null.", nameof(denormalizedData));
+            }
+
+            List<object> dataStructureList = new List<object>();
+
+            foreach (var denormalizedPropertyValues in denormalizedData)
+            {
+                dataStructureList.Add(GetDataStructureObject(objectToDenormalize, denormalizedPropertyValues));
+            }
+
+            return dataStructureList;
+        }
+
+        internal virtual object GetDataStructureObject<T>(T objectToDenormalize, List<object> denormalizedData)
+        {
+            if (null == objectToDenormalize)
+            {
+                throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
+            }
+
+            if (null == denormalizedData)
+            {
+                throw new ArgumentException(nameof(denormalizedData) + " must not be null.", nameof(denormalizedData));
+            }
+
+            string propName = (string)denormalizedData[0];
+            PropertyInfo propInfo = typeof(T).GetProperty(propName);
+            object val = propInfo.GetValue(objectToDenormalize, null);
+
+            if (1 == denormalizedData.Count)
+            {
+                return val;
+            }
+
+            int position = denormalizedData.IndexOf(val);
+
+            if (-1 == position)
+            {
+                throw new InvalidOperationException(val.ToString() + " is missing from the denormalized data list.");
+            }
+
+            return position;
         }
     }
 }

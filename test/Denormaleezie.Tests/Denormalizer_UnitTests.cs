@@ -24,7 +24,7 @@ namespace Dnz.Unit
         {
             fakeJsonDenormalizer = A.Fake<IJSONDenormalizer>();
 
-            aCalltoDenormalize = A.CallTo(() => fakeJsonDenormalizer.DenormalizeToJSON(A<IEnumerable<object>>.Ignored));
+            aCalltoDenormalize = A.CallTo(() => fakeJsonDenormalizer.DenormalizeToJSON(A<List<object>>.Ignored));
 
             aCalltoDenormalize.Returns(returnValue);
 

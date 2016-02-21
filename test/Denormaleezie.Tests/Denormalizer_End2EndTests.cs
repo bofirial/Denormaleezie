@@ -1,5 +1,6 @@
 ﻿using Denormaleezie;
 using Denormaleezie.Tests.Test_Classes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,20 +30,21 @@ namespace Dnz.E2E
     }
     public class When_Calling_DenormalizeToJSON_With_A_List_Of_Flat_Objects
     {
+        private List<Animal> animals;
         private string json;
 
         public When_Calling_DenormalizeToJSON_With_A_List_Of_Flat_Objects()
         {
             Denormalizer denormalizer = new Denormalizer();
 
-            List<Animal> animals = new List<Animal>()
+            animals = new List<Animal>()
             {
-                new Animal() {AnimalId = 1, Age = 10, Name = "Tony", Type = "Tiger" },
-                new Animal() {AnimalId = 2, Age = 11, Name = "Lenny", Type = "Tiger" },
-                new Animal() {AnimalId = 3, Age = 2, Name = "John", Type = "Tiger" },
-                new Animal() {AnimalId = 4, Age = 15, Name = "Tony", Type = "Giraffe" },
-                new Animal() {AnimalId = 5, Age = 10, Name = "Garry", Type = "Giraffe" },
-                new Animal() {AnimalId = 6, Age = 10, Name = "Zachary", Type = "Zebra" },
+                new Animal() {AnimalId = 101, Age = 10, Name = "Tony", Type = "Tiger" },
+                new Animal() {AnimalId = 102, Age = 11, Name = "Lenny", Type = "Tiger" },
+                new Animal() {AnimalId = 103, Age = 2, Name = "John", Type = "Tiger" },
+                new Animal() {AnimalId = 104, Age = 15, Name = "Tony", Type = "Giraffe" },
+                new Animal() {AnimalId = 105, Age = 10, Name = "Garry", Type = "Giraffe" },
+                new Animal() {AnimalId = 106, Age = 10, Name = "Zachary", Type = "Zebra" },
             };
 
             json = denormalizer.DenormalizeToJSON(animals);
@@ -52,6 +54,12 @@ namespace Dnz.E2E
         public void It_Should_Return_JSON()
         {
             JToken.Parse(json);
+        }
+
+        [Fact]
+        public void It_Should_Reduce_The_Size_Vs_JSON_Serialization()
+        {
+            Assert.True(json.Length < JsonConvert.SerializeObject(animals).Length);
         }
     }
 }
