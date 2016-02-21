@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using Xunit;
 using FakeItEasy.Configuration;
 using Denormaleezie.Tests.Test_Classes;
+using Denormaleezie;
 
-namespace Denormaleezie.Tests
+namespace Dnz.Unit
 {
     public class When_Calling_DenormalizeToJSON_With_A_Null_Object
     {

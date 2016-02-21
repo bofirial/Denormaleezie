@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Denormalizers\JSONDenormalizer_UnitTests.cs" />
+    <Compile Include="Denormalizer_End2EndTests.cs" />
     <Compile Include="Denormalizer_UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test Classes\Animal.cs" />

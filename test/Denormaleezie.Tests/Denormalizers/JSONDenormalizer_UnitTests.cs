@@ -12,7 +12,7 @@ using Xunit;
 using FakeItEasy.Configuration;
 using System.Reflection;
 
-namespace Denormaleezie.Tests.Denormalizers
+namespace Dnz.Unit.JSONDnz
 {
     #region DenormalizeToJSON
     public class When_Calling_DenormalizeToJSON_With_A_Null_Object
@@ -40,8 +40,7 @@ namespace Denormaleezie.Tests.Denormalizers
         private string json;
         private JSONDenormalizer denormalizer;
         private List<Animal> animals;
-        private IReturnValueArgumentValidationConfiguration<List<List<List<string>>>> aCallToConvertToDenormalizedList;
-        private List<List<List<string>>> deserializedObject;
+        private IEnumerable<IEnumerable<IEnumerable<object>>> deserializedObject;
 
         public When_Calling_DenormalizeToJSON_With_A_List()
         {
@@ -49,20 +48,18 @@ namespace Denormaleezie.Tests.Denormalizers
 
             A.CallTo(() => denormalizer.DenormalizeToJSON(A<List<Animal>>.Ignored)).CallsBaseMethod();
 
-            aCallToConvertToDenormalizedList = A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored));
-
-            deserializedObject = new List<List<List<string>>>()
+            deserializedObject = new List<IEnumerable<IEnumerable<object>>>()
             {
-                new List<List<string>>()
+                new List<IEnumerable<object>>()
                 {
-                    new List<string>()
+                    new List<object>()
                     {
-                        "deserializedObject"
+                        "denormaleezie"
                     }
                 }
             };
 
-            aCallToConvertToDenormalizedList.Returns(deserializedObject);
+            A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored)).Returns(deserializedObject);
 
             animals = new List<Animal>()
             {
@@ -87,7 +84,9 @@ namespace Denormaleezie.Tests.Denormalizers
         [Fact]
         public void It_Should_Call_ConvertToStringList()
         {
-            aCallToConvertToDenormalizedList.WhenArgumentsMatch(args => args[0] == animals).MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals)
+                .MustHaveHappened(Repeated.Exactly.Once);
         }
 
         [Fact]
@@ -102,7 +101,6 @@ namespace Denormaleezie.Tests.Denormalizers
         private string json;
         private JSONDenormalizer denormalizer;
         List<Animal> animals;
-        private IReturnValueArgumentValidationConfiguration<List<List<List<string>>>> aCallToConvertToDenormalizedList;
 
         public When_Calling_DenormalizeToJSON_With_A_List_And_The_Denormalized_Object_Is_Larger_Than_The_JSON_Object()
         {
@@ -110,19 +108,18 @@ namespace Denormaleezie.Tests.Denormalizers
 
             A.CallTo(() => denormalizer.DenormalizeToJSON(A<List<Animal>>.Ignored)).CallsBaseMethod();
 
-            aCallToConvertToDenormalizedList = A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored));
-
-            aCallToConvertToDenormalizedList.Returns(new List<List<List<string>>>()
+            A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored)).Returns(
+                new List<IEnumerable<IEnumerable<object>>>()
             {
-                new List<List<string>>()
+                new List<IEnumerable<object>>()
                 {
-                    new List<string>()
+                    new List<object>()
                     {
-                "When Serialized This List will be larger than the JSON for Animal.",
-                "When Serialized This List will be larger than the JSON for Animal.",
-                "When Serialized This List will be larger than the JSON for Animal.",
-                "When Serialized This List will be larger than the JSON for Animal.",
-                "When Serialized This List will be larger than the JSON for Animal."
+                            "When Serialized This List will be larger than the JSON for Animal.",
+                            "When Serialized This List will be larger than the JSON for Animal.",
+                            "When Serialized This List will be larger than the JSON for Animal.",
+                            "When Serialized This List will be larger than the JSON for Animal.",
+                            "When Serialized This List will be larger than the JSON for Animal."
                     }
                 }
             });
@@ -150,7 +147,9 @@ namespace Denormaleezie.Tests.Denormalizers
         [Fact]
         public void It_Should_Call_ConvertToStringList()
         {
-            aCallToConvertToDenormalizedList.WhenArgumentsMatch(args => args[0] == animals).MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals)
+                .MustHaveHappened(Repeated.Exactly.Once);
         }
 
         [Fact]
@@ -168,7 +167,7 @@ namespace Denormaleezie.Tests.Denormalizers
 
         public When_Calling_ConvertToDenormalizedLists_With_Null()
         {
-            denormalizer = new JSONDenormalizer();            
+            denormalizer = new JSONDenormalizer();
         }
 
         [Fact]
@@ -182,9 +181,9 @@ namespace Denormaleezie.Tests.Denormalizers
     {
         private JSONDenormalizer denormalizer;
         private List<Animal> animals;
-        private List<List<List<string>>> denormalizedLists;
-        private List<List<string>> denormalizedDataLists;
-        private List<List<string>> dataStructureLists;
+        private IEnumerable<IEnumerable<IEnumerable<object>>> denormalizedLists;
+        private IEnumerable<IEnumerable<object>> denormalizedDataLists;
+        private IEnumerable<IEnumerable<object>> dataStructureLists;
 
         public When_Calling_ConvertToDenormalizedLists()
         {
@@ -192,24 +191,25 @@ namespace Denormaleezie.Tests.Denormalizers
 
             A.CallTo(() => denormalizer.ConvertToDenormalizedLists(A<List<Animal>>.Ignored)).CallsBaseMethod();
 
-            denormalizedDataLists = new List<List<string>>()
+            denormalizedDataLists = new List<IEnumerable<object>>()
             {
-                new List<string>() {"Id" },
-                new List<string>() {"Name", "Tony", "Tania", "Talia" },
-                new List<string>() {"Age", "21", "1", "3" },
-                new List<string>() {"Type", "Tiger" }
+                new List<object>() { "Id"},
+                new List<object>() { "Name", "Tony", "Tania", "Talia"},
+                new List<object>() { "Age", 21, 1, 3},
+                new List<object>() { "Type", "Tiger" }
             };
 
-            dataStructureLists = new List<List<string>>()
+            dataStructureLists = new List<IEnumerable<object>>()
             {
-                new List<string>() {"1", "1", "1", "1" },
-                new List<string>() {"2", "2", "2", "1" },
-                new List<string>() {"3", "3", "3", "1" }
+                new List<object>() {1, 1, 1, 1 },
+                new List<object>() {2, 2, 2, 1 },
+                new List<object>() {3, 3, 3, 1 }
             };
 
             A.CallTo(() => denormalizer.CreateDenormalizedDataLists(A<List<Animal>>.Ignored)).Returns(denormalizedDataLists);
 
-            A.CallTo(() => denormalizer.CreateDataStructureLists(A<List<Animal>>.Ignored, A<List<List<string>>>.Ignored)).Returns(dataStructureLists);
+            A.CallTo(() => denormalizer.CreateDataStructureLists(A<List<Animal>>.Ignored, A<IEnumerable<IEnumerable<object>>>.Ignored))
+                .Returns(dataStructureLists);
 
             animals = new List<Animal>()
             {
@@ -228,8 +228,8 @@ namespace Denormaleezie.Tests.Denormalizers
         [Fact]
         public void It_Should_Return_The_DenormalizedLists()
         {
-            Assert.Equal(denormalizedDataLists, denormalizedLists[0]);
-            Assert.Equal(dataStructureLists, denormalizedLists[1]);
+            Assert.Equal(denormalizedDataLists, denormalizedLists.ElementAt(0));
+            Assert.Equal(dataStructureLists, denormalizedLists.ElementAt(1));
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace Denormaleezie.Tests.Denormalizers
         [Fact]
         public void It_Should_Call_CreateDataStructureLists()
         {
-            A.CallTo(() => denormalizer.CreateDataStructureLists(A<List<Animal>>.Ignored, A<List<List<string>>>.Ignored))
+            A.CallTo(() => denormalizer.CreateDataStructureLists(A<List<Animal>>.Ignored, A<IEnumerable<IEnumerable<object>>>.Ignored))
                 .WhenArgumentsMatch(args => args[0] == animals && args[1] == denormalizedDataLists)
                 .MustHaveHappened(Repeated.Exactly.Once);
         }
@@ -271,8 +271,8 @@ namespace Denormaleezie.Tests.Denormalizers
     {
         private JSONDenormalizer denormalizer;
         private List<Animal> animals;
-        private List<List<string>> denormalizedDataLists;
-        private List<List<string>> createDenormalizedDataListForPropertyReturnValues;
+        private IEnumerable<IEnumerable<object>> denormalizedDataLists;
+        private IEnumerable<IEnumerable<object>> createDenormalizedDataListForPropertyReturnValues;
 
         public When_Calling_CreateDenormalizedDataLists()
         {
@@ -280,12 +280,12 @@ namespace Denormaleezie.Tests.Denormalizers
 
             A.CallTo(() => denormalizer.CreateDenormalizedDataLists(A<List<Animal>>.Ignored)).CallsBaseMethod();
 
-            createDenormalizedDataListForPropertyReturnValues = new List<List<string>>()
+            createDenormalizedDataListForPropertyReturnValues = new List<IEnumerable<object>>()
             {
-                new List<string>() {"1", "2", "3" },
-                new List<string>() {"21", "12" },
-                new List<string>() {"Tony", "Tania", "Tori" },
-                new List<string>() {"Tiger" }
+                new List<object>() {1, 2, 3 },
+                new List<object>() {21, 12 },
+                new List<object>() {"Tony", "Tania", "Tori" },
+                new List<object>() {"Tiger" }
             };
 
             A.CallTo(() => denormalizer.CreateDenormalizedDataListForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
@@ -310,36 +310,38 @@ namespace Denormaleezie.Tests.Denormalizers
         [Fact]
         public void It_Should_Return_A_List_For_Every_Property()
         {
-            Assert.Equal(typeof(Animal).GetProperties().Count(), denormalizedDataLists.Count);
+            Assert.Equal(typeof(Animal).GetProperties().Count(), denormalizedDataLists.Count());
         }
 
         [Fact]
         public void The_First_String_In_Each_List_Should_Be_The_Property_Name()
         {
-            Assert.Equal("AnimalId", denormalizedDataLists[0][0]);
-            Assert.Equal("Age", denormalizedDataLists[1][0]);
-            Assert.Equal("Name", denormalizedDataLists[2][0]);
-            Assert.Equal("Type", denormalizedDataLists[3][0]);
+            var propNames = denormalizedDataLists.Select(i => i.First());
+
+            Assert.Contains(propNames, p => p.ToString() == "AnimalId");
+            Assert.Contains(propNames, p => p.ToString() == "Age");
+            Assert.Contains(propNames, p => p.ToString() == "Name");
+            Assert.Contains(propNames, p => p.ToString() == "Type");
         }
 
         [Fact]
         public void Property_Lists_As_Long_As_The_Normalized_List_Should_Not_Be_Included()
         {
-            Assert.Equal(1, denormalizedDataLists[0].Count());
-            Assert.Equal(1, denormalizedDataLists[2].Count());
+            Assert.Equal(1, denormalizedDataLists.ElementAt(0).Count());
+            Assert.Equal(1, denormalizedDataLists.ElementAt(2).Count());
         }
 
         [Fact]
         public void Property_Lists_Should_Be_Included_After_The_Property_Name()
         {
-            for (int i = 0; i < createDenormalizedDataListForPropertyReturnValues[1].Count; i++)
+            for (int i = 0; i < createDenormalizedDataListForPropertyReturnValues.ElementAt(1).Count(); i++)
             {
-                Assert.Equal(createDenormalizedDataListForPropertyReturnValues[1][i], denormalizedDataLists[1][i+1]);
+                Assert.Equal(createDenormalizedDataListForPropertyReturnValues.ElementAt(1).ElementAt(i), denormalizedDataLists.ElementAt(1).ElementAt(i + 1));
             }
 
-            for (int i = 0; i < createDenormalizedDataListForPropertyReturnValues[3].Count; i++)
+            for (int i = 0; i < createDenormalizedDataListForPropertyReturnValues.ElementAt(3).Count(); i++)
             {
-                Assert.Equal(createDenormalizedDataListForPropertyReturnValues[3][i], denormalizedDataLists[3][i+1]);
+                Assert.Equal(createDenormalizedDataListForPropertyReturnValues.ElementAt(3).ElementAt(i), denormalizedDataLists.ElementAt(3).ElementAt(i + 1));
             }
         }
 
@@ -349,6 +351,152 @@ namespace Denormaleezie.Tests.Denormalizers
             A.CallTo(() => denormalizer.CreateDenormalizedDataListForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
                 .WhenArgumentsMatch(args => args[0] == animals)
                 .MustHaveHappened(Repeated.Exactly.Times(typeof(Animal).GetProperties().Count()));
+        }
+    }
+    #endregion
+
+    #region CreateDenormalizedDataListForProperty
+    public class When_Calling_CreateDenormalizedDataListForProperty_With_A_Null_ObjectToDenormalize
+    {
+        private JSONDenormalizer denormalizer;
+
+        public When_Calling_CreateDenormalizedDataListForProperty_With_A_Null_ObjectToDenormalize()
+        {
+            denormalizer = new JSONDenormalizer();
+        }
+
+        [Fact]
+        public void It_Should_Throw_An_Exception()
+        {
+            Assert.Throws(typeof(ArgumentException), () => denormalizer.CreateDenormalizedDataListForProperty<object>(null, typeof(Animal).GetProperty("AnimalId")));
+        }
+    }
+    public class When_Calling_CreateDenormalizedDataListForProperty_With_A_Null_PropertyInfo
+    {
+        private JSONDenormalizer denormalizer;
+
+        public When_Calling_CreateDenormalizedDataListForProperty_With_A_Null_PropertyInfo()
+        {
+            denormalizer = new JSONDenormalizer();
+        }
+
+        [Fact]
+        public void It_Should_Throw_An_Exception()
+        {
+            Assert.Throws(typeof(ArgumentException), () => denormalizer.CreateDenormalizedDataListForProperty(new List<Animal>(), null));
+        }
+    }
+
+    public class When_Calling_CreateDenormalizedDataListForProperty_For_A_Property_With_No_Duplicates
+    {
+        private JSONDenormalizer denormalizer;
+        private List<Animal> animals;
+        private PropertyInfo propInfo;
+        private IEnumerable<object> denormalizedDataList;
+
+        public When_Calling_CreateDenormalizedDataListForProperty_For_A_Property_With_No_Duplicates()
+        {
+            denormalizer = A.Fake<JSONDenormalizer>();
+
+            A.CallTo(() => denormalizer.CreateDenormalizedDataListForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored)).CallsBaseMethod();
+
+            animals = new List<Animal>()
+            {
+                new Animal()
+                {
+                    AnimalId = 1,
+                    Type = "Tiger",
+                    Age = 21,
+                    Name = "Tony"
+                },
+                new Animal()
+                {
+                    AnimalId = 2,
+                    Type = "Tiger",
+                    Age = 12,
+                    Name = "Tania"
+                },
+                new Animal()
+                {
+                    AnimalId = 3,
+                    Type = "Tiger",
+                    Age = 12,
+                    Name = "Tali"
+                }
+            };
+
+            propInfo = typeof(Animal).GetProperty("AnimalId");
+
+            denormalizedDataList = denormalizer.CreateDenormalizedDataListForProperty(animals, propInfo);
+        }
+
+        [Fact]
+        public void It_Should_Return_A_String_For_Every_ListItem()
+        {
+            Assert.Equal(animals.Count(), denormalizedDataList.Count());
+        }
+
+        [Fact]
+        public void The_List_Should_Contain_The_Property_Values()
+        {
+            Assert.Equal(1, (int)denormalizedDataList.ElementAt(0));
+            Assert.Equal(2, (int)denormalizedDataList.ElementAt(1));
+            Assert.Equal(3, (int)denormalizedDataList.ElementAt(2));
+        }
+    }
+    public class When_Calling_CreateDenormalizedDataListForProperty_For_A_Property_With_Duplicates
+    {
+        private JSONDenormalizer denormalizer;
+        private List<Animal> animals;
+        private PropertyInfo propInfo;
+        private IEnumerable<object> denormalizedDataList;
+
+        public When_Calling_CreateDenormalizedDataListForProperty_For_A_Property_With_Duplicates()
+        {
+            denormalizer = A.Fake<JSONDenormalizer>();
+
+            A.CallTo(() => denormalizer.CreateDenormalizedDataListForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored)).CallsBaseMethod();
+
+            animals = new List<Animal>()
+            {
+                new Animal()
+                {
+                    AnimalId = 1,
+                    Type = "Tiger",
+                    Age = 21,
+                    Name = "Tony"
+                },
+                new Animal()
+                {
+                    AnimalId = 2,
+                    Type = "Tiger",
+                    Age = 12,
+                    Name = "Tania"
+                },
+                new Animal()
+                {
+                    AnimalId = 3,
+                    Type = "Tiger",
+                    Age = 12,
+                    Name = "Tali"
+                }
+            };
+
+            propInfo = typeof(Animal).GetProperty("Type");
+
+            denormalizedDataList = denormalizer.CreateDenormalizedDataListForProperty(animals, propInfo);
+        }
+
+        [Fact]
+        public void It_Should_Return_A_String_For_Every_Unique_ListItem()
+        {
+            Assert.Equal(1, denormalizedDataList.Count());
+        }
+
+        [Fact]
+        public void The_List_Should_Contain_Only_The_Unique_Property_Values()
+        {
+            Assert.Equal("Tiger", (string)denormalizedDataList.ElementAt(0));
         }
     }
     #endregion

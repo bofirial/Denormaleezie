@@ -34,41 +34,39 @@ namespace Denormaleezie.Denormalizers
             return denormalizedJson;
         }
 
-        internal virtual List<List<List<string>>> ConvertToDenormalizedLists<T>(IEnumerable<T> objectToDenormalize)
+        internal virtual IEnumerable<IEnumerable<IEnumerable<object>>> ConvertToDenormalizedLists<T>(IEnumerable<T> objectToDenormalize)
         {
             if (null == objectToDenormalize)
             {
                 throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
             }
 
-            List<List<string>> denormalizedDataLists = CreateDenormalizedDataLists(objectToDenormalize);
-            List<List<string>> dataStructureLists = CreateDataStructureLists(objectToDenormalize, denormalizedDataLists);
+            IEnumerable<IEnumerable<object>> denormalizedDataLists = CreateDenormalizedDataLists(objectToDenormalize);
+            IEnumerable<IEnumerable<object>> dataStructureLists = CreateDataStructureLists(objectToDenormalize, denormalizedDataLists);
 
-            return new List<List<List<string>>>()
-            {
-                denormalizedDataLists,
-                dataStructureLists
+            return new List<IEnumerable<IEnumerable<object>>>() {
+                denormalizedDataLists, dataStructureLists
             };
         }
 
-        internal virtual List<List<string>> CreateDenormalizedDataLists<T>(IEnumerable<T> objectToDenormalize)
+        internal virtual IEnumerable<IEnumerable<object>> CreateDenormalizedDataLists<T>(IEnumerable<T> objectToDenormalize)
         {
             if (null == objectToDenormalize)
             {
                 throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
             }
 
-            List<List<string>> denormalizedDataLists = new List<List<string>>();
+            List<IEnumerable<object>> denormalizedDataLists = new List<IEnumerable<object>>();
 
             IEnumerable<PropertyInfo> propInfos = typeof(T).GetProperties();
 
             foreach (var propInfo in propInfos)
             {
-                List<string> dataList = new List<string>();
+                List<object> dataList = new List<object>();
 
                 dataList.Add(propInfo.Name);
 
-                List<string> denormalizedDataListForProp = CreateDenormalizedDataListForProperty(objectToDenormalize, propInfo);
+                IEnumerable<object> denormalizedDataListForProp = CreateDenormalizedDataListForProperty(objectToDenormalize, propInfo);
 
                 if (denormalizedDataListForProp.Count() < objectToDenormalize.Count())
                 {
@@ -81,34 +79,25 @@ namespace Denormaleezie.Denormalizers
             return denormalizedDataLists;
         }
 
-        internal virtual List<string> CreateDenormalizedDataListForProperty<T>(IEnumerable<T> objectToDenormalize, PropertyInfo property)
+        internal virtual IEnumerable<object> CreateDenormalizedDataListForProperty<T>(IEnumerable<T> objectToDenormalize, PropertyInfo property)
         {
-            throw new NotImplementedException();
-        }
-
-        internal virtual List<List<string>> CreateDataStructureLists<T>(IEnumerable<T> objectToDenormalize, List<List<string>> denormalizedData)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal virtual List<List<List<string>>> ConvertToStringListTest<T>(IEnumerable<T> objectToDenormalize)
-        {
-            IEnumerable<PropertyInfo> propInfos = typeof(T).GetProperties();
-
-            List<List<string>> denormalizedObject = new List<List<string>>();
-
-            foreach (var propInfo in propInfos)
+            if (null == objectToDenormalize)
             {
-                List<string> dataList = new List<string>();
-
-                dataList.Add(propInfo.Name);
-                
-                dataList.AddRange(objectToDenormalize.Select(t => propInfo.GetValue(t, null).ToString()).GroupBy(k => k).Select(k => k.Key));
-
-                denormalizedObject.Add(dataList);
+                throw new ArgumentException(nameof(objectToDenormalize) + " must not be null.", nameof(objectToDenormalize));
             }
 
-            throw new NotImplementedException();
+            if (null == property)
+            {
+                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+            }
+
+            return objectToDenormalize.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).GroupBy(k => k).Select(k => k.Key);
+        }
+
+        internal virtual IEnumerable<IEnumerable<object>> CreateDataStructureLists<T>(IEnumerable<T> objectToDenormalize
+            , IEnumerable<IEnumerable<object>> denormalizedData)
+        {
+            return null;
         }
     }
 }
