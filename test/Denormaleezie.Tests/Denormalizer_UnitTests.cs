@@ -23,13 +23,13 @@ namespace Denormaleezie.Tests
         {
             fakeJsonDenormalizer = A.Fake<IJSONDenormalizer>();
 
-            aCalltoDenormalize = A.CallTo(() => fakeJsonDenormalizer.DenormalizeToJSON(A<List<object>>.Ignored));
+            aCalltoDenormalize = A.CallTo(() => fakeJsonDenormalizer.DenormalizeToJSON(A<IEnumerable<object>>.Ignored));
 
             aCalltoDenormalize.Returns(returnValue);
 
             denormalizer = new Denormalizer(fakeJsonDenormalizer);
 
-            json = denormalizer.DenormalizeToJSON<List<object>>(null);
+            json = denormalizer.DenormalizeToJSON<object>(null);
         }
 
         [Fact]
@@ -41,7 +41,9 @@ namespace Denormaleezie.Tests
         [Fact]
         public void It_Should_Call_The_JSONDenormalizer_With_The_Animal()
         {
-            aCalltoDenormalize.WhenArgumentsMatch(args => args[0] == null).MustHaveHappened(Repeated.Exactly.Once);
+            aCalltoDenormalize.WhenArgumentsMatch(args => {
+                return args[0] == null;
+                }).MustHaveHappened(Repeated.Exactly.Once);
         }
     }
 
