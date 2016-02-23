@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denormaleezie", "src\Denormaleezie\Denormaleezie.csproj", "{D9ED70E1-92C7-46F1-B533-29992898EB41}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D07B4799-25C6-4F15-B19A-8C611E438C61}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{58738293-8EFE-4B81-8C5E-2211A4327897}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denormaleezie.Tests", "test\Denormaleezie.Tests\Denormaleezie.Tests.csproj", "{A99E210D-4985-4CDD-A340-3C57C8C57FE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9ED70E1-92C7-46F1-B533-29992898EB41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9ED70E1-92C7-46F1-B533-29992898EB41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9ED70E1-92C7-46F1-B533-29992898EB41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9ED70E1-92C7-46F1-B533-29992898EB41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A99E210D-4985-4CDD-A340-3C57C8C57FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A99E210D-4985-4CDD-A340-3C57C8C57FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A99E210D-4985-4CDD-A340-3C57C8C57FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A99E210D-4985-4CDD-A340-3C57C8C57FE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D9ED70E1-92C7-46F1-B533-29992898EB41} = {D07B4799-25C6-4F15-B19A-8C611E438C61}
+		{A99E210D-4985-4CDD-A340-3C57C8C57FE0} = {58738293-8EFE-4B81-8C5E-2211A4327897}
+	EndGlobalSection
+EndGlobal
