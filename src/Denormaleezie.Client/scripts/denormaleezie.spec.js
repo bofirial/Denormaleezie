@@ -10,4 +10,31 @@ describe('Denormaleezie', function () {
         expect(denormaleezie.denormalize).not.toBeNull();
         expect(typeof (denormaleezie.denormalize)).toEqual("function");
     });
+    describe('when calling denormalize with no parameters', function () {
+        var returnValue;
+        beforeEach(function () {
+            returnValue = denormaleezie.denormalize();
+        });
+        it('should return null', function () {
+            expect(returnValue).toBeUndefined();
+        });
+    });
+    describe('when calling denormalize with null', function () {
+        var returnValue;
+        beforeEach(function () {
+            returnValue = denormaleezie.denormalize(null);
+        });
+        it('should return null', function () {
+            expect(returnValue).toBeNull();
+        });
+    });
+    describe('when calling denormalize with undefined', function () {
+        var returnValue;
+        beforeEach(function () {
+            returnValue = denormaleezie.denormalize(undefined);
+        });
+        it('should return null', function () {
+            expect(returnValue).toBeUndefined();
+        });
+    });
 });
