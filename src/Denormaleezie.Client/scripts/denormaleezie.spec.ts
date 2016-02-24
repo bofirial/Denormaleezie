@@ -56,4 +56,35 @@ describe('Denormaleezie', () => {
         });
 
     });
+
+    describe('when calling denormalize with a serialized denormalized array', () => {
+
+        var returnValue: any,
+            json: string = '[[["AnimalId"],["Age",10,11,2,15],["Name","Tony","Lenny","John","Garry","Zachary"],["Type","Tiger","Giraffe","Zebra"]],[[101,1,1,1],[102,2,2,1],[103,3,3,1],[104,4,1,2],[105,1,4,2],[106,1,5,3]]]';
+        
+        beforeEach(() => {
+            returnValue = denormaleezie.denormalize(json);
+        });
+
+        it('should return an array', () => {
+            expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+    });
+
+
+    describe('when calling denormalize with a denormalized array', () => {
+
+        var returnValue: any,
+            json: string = '[[["AnimalId"],["Age",10,11,2,15],["Name","Tony","Lenny","John","Garry","Zachary"],["Type","Tiger","Giraffe","Zebra"]],[[101,1,1,1],[102,2,2,1],[103,3,3,1],[104,4,1,2],[105,1,4,2],[106,1,5,3]]]',
+            denormalizedArray: Array<any> = JSON.parse(json);
+
+        beforeEach(() => {
+            returnValue = denormaleezie.denormalize(denormalizedArray);
+        });
+
+        it('should return an array', () => {
+            expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+    });
+    
 });
