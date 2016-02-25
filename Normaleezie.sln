@@ -12,11 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denormaleezie.Tests", "test\Denormaleezie.Tests\Denormaleezie.Tests.csproj", "{A99E210D-4985-4CDD-A340-3C57C8C57FE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Normaleezie.Tests", "test\Normaleezie.Tests\Normaleezie.Tests.csproj", "{A99E210D-4985-4CDD-A340-3C57C8C57FE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denormaleezie", "src\Denormaleezie\Denormaleezie.csproj", "{D9ED70E1-92C7-46F1-B533-29992898EB41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Normaleezie", "src\Normaleezie\Normaleezie.csproj", "{D9ED70E1-92C7-46F1-B533-29992898EB41}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Denormaleezie.Client", "src\Denormaleezie.Client\Denormaleezie.Client.xproj", "{CEE63344-8806-48B6-B3EC-3A7614CF2CF7}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Normaleezie.Client", "src\Normaleezie.Client\Normaleezie.Client.xproj", "{CEE63344-8806-48B6-B3EC-3A7614CF2CF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
