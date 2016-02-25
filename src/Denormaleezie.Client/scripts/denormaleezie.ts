@@ -1,5 +1,24 @@
 ﻿
 namespace denormaleezie {
+
+    function createNormalizedObject(denormalizedData : Array<Array<any>>, structureItem : Array<any>) : any {
+
+        var normalizedObject = {};
+
+        for (var i = 0; i < denormalizedData.length; i++) {
+            var prop = denormalizedData[i],
+                value = structureItem[i];
+
+            if (prop.length > 1) {
+                value = prop[structureItem[i]];
+            }
+
+            normalizedObject[prop[0]] = value;
+        }
+
+        return normalizedObject;
+    }
+
     export function normalize(param: any): any {
 
         if (!param) {
@@ -19,21 +38,8 @@ namespace denormaleezie {
             normalizedList = [];
 
         for (var structureItem of denormalizedStructure) {
-            var listItem = {};
 
-            for (var i = 0; i < denormalizedData.length; i++) {
-                var prop = denormalizedData[i],
-                    value = structureItem[i];
-
-                if (prop.length > 1)
-                {
-                    value = prop[structureItem[i]];
-                }
-
-                listItem[prop[0]] = value;
-            }
-
-            normalizedList.push(listItem);
+            normalizedList.push(createNormalizedObject(denormalizedData, structureItem));
         }
 
         return normalizedList;
