@@ -1,7 +1,7 @@
-#Denormaleezie
-####A DotNet and Typescript/Javascript Library to Denormalize and Normalize Data in a JSON Array Format.
+#Normaleezie
+####A DotNet and Typescript/Javascript Library to Normalize and Denormalize Data in a JSON Array Format.
 
-Denormaleezie will normalize a list of objects in order to reduce the size for transport over a network.  For example denormaleezie will take a list of objects like this:
+Normaleezie will normalize a list of objects in order to reduce the size for transport over a network.  For example normaleezie will take a list of objects like this:
 
 ######Books
 ```json
@@ -46,10 +46,10 @@ Denormaleezie will normalize a list of objects in order to reduce the size for t
 and convert it to a list of objects like this:
 
 ```csharp
-string json = new Denormaleezie.Denormalizer().DenormalizeToJSON(books);
+string json = new Normaleezie.Normalizer().Normalize(books);
 ```
 
-######Denormalized Books
+######Normalized Books
 ```json
 [[["Title"],
 ["Author","J.R.R. Tolkien","Jim Butcher"],
@@ -79,8 +79,8 @@ string json = new Denormaleezie.Denormalizer().DenormalizeToJSON(books);
 ["Skin Game",2,"2014-05-27T00:00:00",2,2,3,2]]]
 ```
 
-This can then be normalized back to the original list from the client.
+This can then be denormalized back to the original list from the client.
 
 ```javascript
-var books = denormaleezie.normalize(json);
+var books = denormaleezie.denormalize(json);
 ```
