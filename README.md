@@ -3,6 +3,7 @@
 
 Denormaleezie will normalize a list of objects in order to reduce the size for transport over a network.  For example denormaleezie will take a list of objects like this:
 
+######Books
 ```json
 [{"Title":"The Fellowship of the Ring","Author":"J.R.R. Tolkien","PublishDate":"1954-07-29T00:00:00",
 	"Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},
@@ -44,6 +45,11 @@ Denormaleezie will normalize a list of objects in order to reduce the size for t
 
 and convert it to a list of objects like this:
 
+```csharp
+string json = new Denormaleezie.Denormalizer().DenormalizeToJSON(books);
+```
+
+######Denormalized Books
 ```json
 [[["Title"],
 ["Author","J.R.R. Tolkien","Jim Butcher"],
@@ -74,3 +80,7 @@ and convert it to a list of objects like this:
 ```
 
 This can then be normalized back to the original list from the client.
+
+```javascript
+var books = denormaleezie.normalize(json);
+```
