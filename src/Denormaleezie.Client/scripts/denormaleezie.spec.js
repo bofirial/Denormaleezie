@@ -5,54 +5,58 @@ describe('Denormaleezie', function () {
         expect(denormaleezie).not.toBeUndefined();
         expect(denormaleezie).not.toBeNull();
     });
-    it('should include a denormalize function', function () {
-        expect(denormaleezie.denormalize).not.toBeUndefined();
-        expect(denormaleezie.denormalize).not.toBeNull();
-        expect(typeof (denormaleezie.denormalize)).toEqual("function");
+    it('should include a normalize function', function () {
+        expect(denormaleezie.normalize).not.toBeUndefined();
+        expect(denormaleezie.normalize).not.toBeNull();
+        expect(typeof (denormaleezie.normalize)).toEqual("function");
     });
-    describe('when calling denormalize with no parameters', function () {
+    describe('when calling normalize with no parameters', function () {
         var returnValue;
         beforeEach(function () {
-            returnValue = denormaleezie.denormalize();
+            returnValue = denormaleezie.normalize();
         });
         it('should return null', function () {
             expect(returnValue).toBeUndefined();
         });
     });
-    describe('when calling denormalize with null', function () {
+    describe('when calling normalize with null', function () {
         var returnValue;
         beforeEach(function () {
-            returnValue = denormaleezie.denormalize(null);
+            returnValue = denormaleezie.normalize(null);
         });
         it('should return null', function () {
             expect(returnValue).toBeNull();
         });
     });
-    describe('when calling denormalize with undefined', function () {
+    describe('when calling normalize with undefined', function () {
         var returnValue;
         beforeEach(function () {
-            returnValue = denormaleezie.denormalize(undefined);
+            returnValue = denormaleezie.normalize(undefined);
         });
         it('should return null', function () {
             expect(returnValue).toBeUndefined();
         });
     });
-    describe('when calling denormalize with a serialized denormalized array', function () {
+    describe('when calling normalize with a serialized denormalized array', function () {
         var returnValue, json = '[[["AnimalId"],["Age",10,11,2,15],["Name","Tony","Lenny","John","Garry","Zachary"],["Type","Tiger","Giraffe","Zebra"]],[[101,1,1,1],[102,2,2,1],[103,3,3,1],[104,4,1,2],[105,1,4,2],[106,1,5,3]]]';
         beforeEach(function () {
-            returnValue = denormaleezie.denormalize(json);
+            returnValue = denormaleezie.normalize(json);
         });
         it('should return an array', function () {
             expect(Array.isArray(returnValue)).toBeTruthy();
         });
     });
-    describe('when calling denormalize with a denormalized array', function () {
+    describe('when calling normalize with a denormalized array', function () {
         var returnValue, json = '[[["AnimalId"],["Age",10,11,2,15],["Name","Tony","Lenny","John","Garry","Zachary"],["Type","Tiger","Giraffe","Zebra"]],[[101,1,1,1],[102,2,2,1],[103,3,3,1],[104,4,1,2],[105,1,4,2],[106,1,5,3]]]', denormalizedArray = JSON.parse(json);
         beforeEach(function () {
-            returnValue = denormaleezie.denormalize(denormalizedArray);
+            returnValue = denormaleezie.normalize(denormalizedArray);
         });
         it('should return an array', function () {
             expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+        it("should equal the object as if it wasn't denormalized", function () {
+            var expectedValue = JSON.parse('[{"AnimalId":101,"Age":10,"Name":"Tony","Type":"Tiger"},{"AnimalId":102,"Age":11,"Name":"Lenny","Type":"Tiger"},{"AnimalId":103,"Age":2,"Name":"John","Type":"Tiger"},{"AnimalId":104,"Age":15,"Name":"Tony","Type":"Giraffe"},{"AnimalId":105,"Age":10,"Name":"Garry","Type":"Giraffe"},{"AnimalId":106,"Age":10,"Name":"Zachary","Type":"Zebra"}]');
+            expect(returnValue).toEqual(expectedValue);
         });
     });
 });
