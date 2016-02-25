@@ -1,5 +1,5 @@
-﻿using Denormaleezie;
-using Denormaleezie.Tests.Test_Classes;
+﻿using Normaleezie;
+using Normaleezie.Tests.Test_Classes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,7 +17,7 @@ namespace Dnz.E2E
 
         public When_Calling_DenormalizeToJSON_With_A_Null_Object()
         {
-            Denormalizer denormalizer = new Denormalizer();
+            Normalizer denormalizer = new Normalizer();
 
             json = denormalizer.DenormalizeToJSON<object>(null);
         }
@@ -35,7 +35,7 @@ namespace Dnz.E2E
 
         public When_Calling_DenormalizeToJSON_With_A_List_Of_Flat_Objects()
         {
-            Denormalizer denormalizer = new Denormalizer();
+            Normalizer denormalizer = new Normalizer();
 
             animals = new List<Animal>()
             {
@@ -47,7 +47,7 @@ namespace Dnz.E2E
                 new Animal() {AnimalId = 106, Age = 10, Name = "Zachary", Type = "Zebra" },
             };
 
-            string json = new Denormaleezie.Denormalizer().DenormalizeToJSON(animals);
+            json = denormalizer.DenormalizeToJSON(animals);
         }
         
         [Fact]
@@ -72,7 +72,7 @@ namespace Dnz.E2E
 
         public When_Calling_DenormalizeToJSON_With_A_List_Of_Books()
         {
-            Denormalizer denormalizer = new Denormalizer();
+            Normalizer denormalizer = new Normalizer();
 
             books = new List<Book>()
             {

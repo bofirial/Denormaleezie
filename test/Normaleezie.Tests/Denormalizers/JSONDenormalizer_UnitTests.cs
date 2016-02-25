@@ -1,5 +1,5 @@
-﻿using Denormaleezie.Denormalizers;
-using Denormaleezie.Tests.Test_Classes;
+﻿using Normaleezie.Denormalizers;
+using Normaleezie.Tests.Test_Classes;
 using FakeItEasy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

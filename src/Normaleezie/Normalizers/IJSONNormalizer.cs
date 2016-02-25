@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Denormaleezie.Denormalizers
+namespace Normaleezie.Denormalizers
 {
     public interface IJSONDenormalizer
     {

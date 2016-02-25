@@ -1,4 +1,4 @@
-﻿using Denormaleezie.Denormalizers;
+﻿using Normaleezie.Denormalizers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Denormaleezie
+namespace Normaleezie
 {
-    public class Denormalizer
+    public class Normalizer
     {
         IJSONDenormalizer jsonDenormalizer;
 
-        public Denormalizer() : this(new JSONDenormalizer()) { }
+        public Normalizer() : this(new JSONDenormalizer()) { }
 
-        internal Denormalizer(IJSONDenormalizer jsonDenormalizer)
+        internal Normalizer(IJSONDenormalizer jsonDenormalizer)
         {
             this.jsonDenormalizer = jsonDenormalizer;
         }

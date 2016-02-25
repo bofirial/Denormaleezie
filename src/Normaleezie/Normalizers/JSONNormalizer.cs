@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Denormaleezie.Denormalizers
+namespace Normaleezie.Denormalizers
 {
     internal class JSONDenormalizer : IJSONDenormalizer
     {

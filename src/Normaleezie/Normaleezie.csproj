@@ -44,9 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Denormalizer.cs" />
-    <Compile Include="Denormalizers\IJSONDenormalizer.cs" />
-    <Compile Include="Denormalizers\JSONDenormalizer.cs" />
+    <Compile Include="Normalizer.cs" />
+    <Compile Include="Normalizers\IJSONNormalizer.cs" />
+    <Compile Include="Normalizers\JSONNormalizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

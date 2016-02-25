@@ -1,4 +1,4 @@
-﻿using Denormaleezie.Denormalizers;
+﻿using Normaleezie.Denormalizers;
 using FakeItEasy;
 using System;
 using System.Collections.Generic;
@@ -7,15 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using FakeItEasy.Configuration;
-using Denormaleezie.Tests.Test_Classes;
-using Denormaleezie;
+using Normaleezie.Tests.Test_Classes;
+using Normaleezie;
 
 namespace Dnz.Unit
 {
     public class When_Calling_DenormalizeToJSON_With_A_Null_Object
     {
         private string json;
-        private Denormalizer denormalizer;
+        private Normalizer denormalizer;
         private IJSONDenormalizer fakeJsonDenormalizer;
         private IReturnValueArgumentValidationConfiguration<string> aCalltoDenormalize;
         private const string returnValue = "";
@@ -28,7 +28,7 @@ namespace Dnz.Unit
 
             aCalltoDenormalize.Returns(returnValue);
 
-            denormalizer = new Denormalizer(fakeJsonDenormalizer);
+            denormalizer = new Normalizer(fakeJsonDenormalizer);
 
             json = denormalizer.DenormalizeToJSON<object>(null);
         }
@@ -51,7 +51,7 @@ namespace Dnz.Unit
     public class When_Calling_DenormalizeToJSON_With_A_List
     {
         private string json;
-        private Denormalizer denormalizer;
+        private Normalizer denormalizer;
         private IJSONDenormalizer fakeJsonDenormalizer;
         private IReturnValueArgumentValidationConfiguration<string> aCalltoDenormalize;
         private const string returnValue = "{\"thisIs\": \"a dummy return value.\"}";
@@ -65,7 +65,7 @@ namespace Dnz.Unit
 
             aCalltoDenormalize.Returns(returnValue);
 
-            denormalizer = new Denormalizer(fakeJsonDenormalizer);
+            denormalizer = new Normalizer(fakeJsonDenormalizer);
 
             animals = new List<Animal>()
             {
