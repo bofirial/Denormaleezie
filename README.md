@@ -1,5 +1,5 @@
 #Denormaleezie
-##A DotNet and Typescript/Javascript Library to Denormalize and Normalize Data in a JSON Array Format.
+####A DotNet and Typescript/Javascript Library to Denormalize and Normalize Data in a JSON Array Format.
 
 Denormaleezie will normalize a list of objects in order to reduce the size for transport over a network.  For example denormaleezie will take a list of objects like this:
 
