@@ -1,7 +1,19 @@
 #Normaleezie
 ####A DotNet and Typescript/Javascript Library to Normalize and Denormalize Data in a JSON Array Format.
 
-Normaleezie will normalize a list of objects in order to reduce the size for transport over a network.  For example normaleezie will take a list of objects like this:
+Normaleezie will normalize a list of objects in order to reduce the size for transport over a network.
+
+#####Here is how it is used:
+
+```csharp
+var normalizedBooks = new Normaleezie.Normalizer().Normalize(books);
+```
+
+```javascript
+var books = normaleezie.denormalize(json);
+```
+
+Normaleezie will take a list of objects like this:
 
 ######Books
 ```json
@@ -45,10 +57,6 @@ Normaleezie will normalize a list of objects in order to reduce the size for tra
 
 and convert it to a list of objects like this:
 
-```csharp
-string json = new Normaleezie.Normalizer().Normalize(books);
-```
-
 ######Normalized Books
 ```json
 [[["Title"],
@@ -80,7 +88,3 @@ string json = new Normaleezie.Normalizer().Normalize(books);
 ```
 
 This can then be denormalized back to the original list from the client.
-
-```javascript
-var books = denormaleezie.denormalize(json);
-```
