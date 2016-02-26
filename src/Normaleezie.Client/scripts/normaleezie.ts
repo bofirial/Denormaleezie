@@ -1,22 +1,34 @@
 ﻿
 namespace normaleezie {
 
-    function createDenormalizedObject(normalizedData : Array<Array<any>>, structureItem : Array<any>) : any {
+    function createDenormalizedItem(normalizedDataList: Array<Array<any>>, normalizedStructureItem : Array<any>) : any {
 
-        var denormalizedObject = {};
+        var denormalizedItem = {};
 
-        for (var i = 0; i < normalizedData.length; i++) {
-            var prop = normalizedData[i],
-                value = structureItem[i];
+        for (var i = 0; i < normalizedDataList.length; i++) {
 
-            if (prop.length > 1) {
-                value = prop[structureItem[i]];
+            var normalizedPropertyData = normalizedDataList[i],
+                propName = normalizedPropertyData[0],
+                propValue = normalizedStructureItem[i];
+
+            if (normalizedPropertyData.length > 1) {
+                propValue = normalizedPropertyData[normalizedStructureItem[i]];
             }
 
-            denormalizedObject[prop[0]] = value;
+            denormalizedItem[propName] = propValue;
         }
 
-        return denormalizedObject;
+        return denormalizedItem;
+    }
+
+    function getNormalizedForm(param: any): Array<Array<Array<any>>> {
+        var normalizedForm: Array<Array<Array<any>>> = param;
+
+        if (typeof (param) === 'string') {
+            normalizedForm = JSON.parse(param);
+        }
+
+        return normalizedForm;
     }
 
     export function denormalize(param: any): any {
@@ -25,21 +37,15 @@ namespace normaleezie {
             return param;
         }
 
-        var normalizedObject: Array<Array<Array<any>>>;
+        var normalizedForm: Array<Array<Array<any>>> = getNormalizedForm(param);
 
-        if (typeof (param) === 'string') {
-            normalizedObject = JSON.parse(param);
-        } else {
-            normalizedObject = param;
-        }
-
-        var normalizedData = normalizedObject[0],
-            normalizedStructure = normalizedObject[1],
+        var normalizedDataList = normalizedForm[0],
+            normalizedStructureList = normalizedForm[1],
             denormalizedList = [];
 
-        for (var structureItem of normalizedStructure) {
+        for (var normalizedStructureItem of normalizedStructureList) {
 
-            denormalizedList.push(createDenormalizedObject(normalizedData, structureItem));
+            denormalizedList.push(createDenormalizedItem(normalizedDataList, normalizedStructureItem));
         }
 
         return denormalizedList;

@@ -8,34 +8,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+// ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 
-namespace Dnz.E2E
+namespace nEZ.E2E
 {
-    public class When_Calling_DenormalizeToJSON_With_A_Null_Object
+    public class When_Calling_Normalize_With_A_Null_Object
     {
-        private string json;
+        private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_DenormalizeToJSON_With_A_Null_Object()
+        public When_Calling_Normalize_With_A_Null_Object()
         {
-            Normalizer denormalizer = new Normalizer();
+            Normalizer normalizer = new Normalizer();
 
-            json = denormalizer.DenormalizeToJSON<object>(null);
+            normalizedForm = normalizer.Normalize<object>(null);
         }
 
         [Fact]
-        public void It_Should_Return_An_Empty_String()
+        public void It_Should_Return_An_Empty_List()
         {
-            Assert.Equal(string.Empty, json);
+            Assert.IsType(typeof (List<List<List<object>>>), normalizedForm);
+            Assert.Empty(normalizedForm);
         }
     }
-    public class When_Calling_DenormalizeToJSON_With_A_List_Of_Flat_Objects
+    public class When_Calling_Normalize_With_A_List_Of_Animals
     {
-        private List<Animal> animals;
-        private string json;
+        private readonly List<Animal> animals;
+        private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_DenormalizeToJSON_With_A_List_Of_Flat_Objects()
+        public When_Calling_Normalize_With_A_List_Of_Animals()
         {
-            Normalizer denormalizer = new Normalizer();
+            Normalizer normalizer = new Normalizer();
 
             animals = new List<Animal>()
             {
@@ -47,32 +50,32 @@ namespace Dnz.E2E
                 new Animal() {AnimalId = 106, Age = 10, Name = "Zachary", Type = "Zebra" },
             };
 
-            json = denormalizer.DenormalizeToJSON(animals);
+            normalizedForm = normalizer.Normalize(animals);
         }
         
         [Fact]
-        public void It_Should_Return_JSON()
+        public void It_Should_Return_A_List_In_Normalized_Form()
         {
-            JToken.Parse(json);
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
         }
 
         [Fact]
-        public void It_Should_Reduce_The_Size_Vs_JSON_Serialization()
+        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
         {
-            Assert.True(json.Length < JsonConvert.SerializeObject(animals).Length);
+            Assert.True(JsonConvert.SerializeObject(normalizedForm).Length < JsonConvert.SerializeObject(animals).Length);
         }
     }
 
 
-    public class When_Calling_DenormalizeToJSON_With_A_List_Of_Books
+    public class When_Calling_Normalize_With_A_List_Of_Books
     {
-        private List<Book> books;
-        private string denormalizedJson;
-        private string serializedJson;
+        private readonly List<Book> books;
+        private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_DenormalizeToJSON_With_A_List_Of_Books()
+        public When_Calling_Normalize_With_A_List_Of_Books()
         {
-            Normalizer denormalizer = new Normalizer();
+            Normalizer normalizer = new Normalizer();
 
             books = new List<Book>()
             {
@@ -115,20 +118,20 @@ namespace Dnz.E2E
                     Series = "The Dresden Files", PurchaseYear = 2016, PurchaseLocation = "Amazon", HasRead = false},
             };
 
-            denormalizedJson = denormalizer.DenormalizeToJSON(books);
-            serializedJson = JsonConvert.SerializeObject(books);
+            normalizedForm = normalizer.Normalize(books);
         }
 
         [Fact]
-        public void It_Should_Return_JSON()
+        public void It_Should_Return_A_List_In_Normalized_Form()
         {
-            JToken.Parse(denormalizedJson);
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
         }
 
         [Fact]
-        public void It_Should_Reduce_The_Size_Vs_JSON_Serialization()
+        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
         {
-            Assert.True(denormalizedJson.Length < serializedJson.Length);
+            Assert.True(JsonConvert.SerializeObject(normalizedForm).Length < JsonConvert.SerializeObject(books).Length);
         }
     }
 }
