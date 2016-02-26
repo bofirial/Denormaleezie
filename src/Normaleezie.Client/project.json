@@ -1,0 +1,15 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "Normaleezie.Client Class Library",
+  "authors": [ "jeschaf" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "frameworks": {
+    "net451": { }
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
