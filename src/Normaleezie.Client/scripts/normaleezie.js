@@ -24,11 +24,12 @@ var normaleezie;
         }
         var normalizedForm = getNormalizedForm(param);
         var normalizedDataList = normalizedForm[0], normalizedStructureList = normalizedForm[1], denormalizedList = [];
-        for (var _i = 0, normalizedStructureList_1 = normalizedStructureList; _i < normalizedStructureList_1.length; _i++) {
-            var normalizedStructureItem = normalizedStructureList_1[_i];
+        for (var _i = 0; _i < normalizedStructureList.length; _i++) {
+            var normalizedStructureItem = normalizedStructureList[_i];
             denormalizedList.push(createDenormalizedItem(normalizedDataList, normalizedStructureItem));
         }
         return denormalizedList;
     }
     normaleezie.denormalize = denormalize;
 })(normaleezie || (normaleezie = {}));
+//# sourceMappingURL=normaleezie.js.map
