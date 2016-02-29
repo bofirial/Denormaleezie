@@ -204,29 +204,37 @@ namespace nEZ.Unit
         }
     }
 
-    public class When_Calling_CreateNormalizedDataList
+    public class When_Calling_CreateNormalizedDataList_With_A_List_Of_Flat_Objects
     {
         private readonly Normalizer normalizer;
         private readonly List<Animal> animals;
         private readonly List<List<object>> normalizedDataList;
-        private readonly List<List<object>> getUniquePropertyValuesReturnValues;
+        private readonly List<List<List<object>>> getNormalizedDataForPropertyReturnValues;
 
-        public When_Calling_CreateNormalizedDataList()
+        public When_Calling_CreateNormalizedDataList_With_A_List_Of_Flat_Objects()
         {
             normalizer = A.Fake<Normalizer>();
 
             A.CallTo(() => normalizer.CreateNormalizedDataList(A<List<Animal>>.Ignored)).CallsBaseMethod();
 
-            getUniquePropertyValuesReturnValues = new List<List<object>>()
+            getNormalizedDataForPropertyReturnValues = new List<List<List<object>>>()
             {
-                new List<object>() {1, 2, 3 },
-                new List<object>() {21, 12 },
-                new List<object>() {"Tony", "Tania", "Tori" },
-                new List<object>() {"Tiger" }
+                new List<List<object>>() {
+                    new List<object>() {"AnimalId" }
+                },
+                new List<List<object>>() {
+                    new List<object>() {"Age", 21, 12 }
+                },
+                new List<List<object>>() {
+                    new List<object>() {"Name" }
+                },
+                new List<List<object>>() {
+                    new List<object>() {"Type", "Tiger" }
+                }
             };
 
-            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
-                .ReturnsNextFromSequence(getUniquePropertyValuesReturnValues.ToArray());
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+                .ReturnsNextFromSequence(getNormalizedDataForPropertyReturnValues.ToArray());
 
             animals = new List<Animal>()
             {
@@ -251,45 +259,164 @@ namespace nEZ.Unit
         }
 
         [Fact]
-        public void The_First_String_In_Each_List_Should_Be_The_Property_Name()
+        public void It_Should_Call_GetNormalizedDataForProperty_For_Each_Property_In_The_DenormalizedListItemType()
         {
-            var propNames = normalizedDataList.Select(i => i.First()).ToArray();
-
-            Assert.Contains(propNames, p => p.ToString() == "AnimalId");
-            Assert.Contains(propNames, p => p.ToString() == "Age");
-            Assert.Contains(propNames, p => p.ToString() == "Name");
-            Assert.Contains(propNames, p => p.ToString() == "Type");
-        }
-
-        [Fact]
-        public void Property_Lists_As_Long_As_The_Normalized_List_Should_Not_Be_Included()
-        {
-            Assert.Equal(1, normalizedDataList[0].Count);
-            Assert.Equal(1, normalizedDataList[2].Count);
-        }
-
-        [Fact]
-        public void Property_Lists_Should_Be_Included_After_The_Property_Name()
-        {
-            for (int i = 0; i < getUniquePropertyValuesReturnValues[1].Count; i++)
-            {
-                Assert.Equal(getUniquePropertyValuesReturnValues[1][i], normalizedDataList[1][i + 1]);
-            }
-
-            for (int i = 0; i < getUniquePropertyValuesReturnValues[3].Count; i++)
-            {
-                Assert.Equal(getUniquePropertyValuesReturnValues[3][i], normalizedDataList[3][i + 1]);
-            }
-        }
-
-        [Fact]
-        public void It_Should_Call_GetUniquePropertyValues_For_Each_Property_In_The_DenormalizedListItemType()
-        {
-            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
                 .WhenArgumentsMatch(args => args[0] == animals)
                 .MustHaveHappened(Repeated.Exactly.Times(typeof(Animal).GetProperties().Count()));
         }
+
+        [Fact]
+        public void It_Should_Return_The_Data_From_GetNormalizedDataForProperty()
+        {
+            Assert.Equal(new List<List<object>>()
+            {
+                getNormalizedDataForPropertyReturnValues[0][0],
+                getNormalizedDataForPropertyReturnValues[1][0],
+                getNormalizedDataForPropertyReturnValues[2][0],
+                getNormalizedDataForPropertyReturnValues[3][0],
+            }, normalizedDataList);
+        }
     }
+    #endregion
+
+    #region GetNormalizedDataForProperty
+
+    public class When_Calling_GetNormalizedDataForProperty_With_A_Null_Object_List
+    {
+        private readonly Normalizer normalizer;
+
+        public When_Calling_GetNormalizedDataForProperty_With_A_Null_Object_List()
+        {
+            normalizer = new Normalizer();
+        }
+
+        [Fact]
+        public void It_Should_Throw_An_Exception()
+        {
+            Assert.Throws(typeof(ArgumentException), () => normalizer.GetNormalizedDataForProperty<object>(null, typeof(Animal).GetProperty("AnimalId")));
+        }
+    }
+    public class When_Calling_GetNormalizedDataForProperty_With_A_Null_PropertyInfo
+    {
+        private readonly Normalizer normalizer;
+
+        public When_Calling_GetNormalizedDataForProperty_With_A_Null_PropertyInfo()
+        {
+            normalizer = new Normalizer();
+        }
+
+        [Fact]
+        public void It_Should_Throw_An_Exception()
+        {
+            Assert.Throws(typeof(ArgumentException), () => normalizer.GetNormalizedDataForProperty(new List<Animal>(), null));
+        }
+    }
+
+    public class When_Calling_GetNormalizedDataForProperty_With_A_Property_That_Has_No_Duplicate_Values
+    {
+        private readonly Normalizer normalizer;
+        private readonly List<Animal> animals;
+        private readonly PropertyInfo propInfo;
+        private readonly List<List<object>> normalizedDataForProperty;
+
+        public When_Calling_GetNormalizedDataForProperty_With_A_Property_That_Has_No_Duplicate_Values()
+        {
+            normalizer = A.Fake<Normalizer>();
+
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored)).CallsBaseMethod();
+
+            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+                .Returns(new List<object>() {1, 2, 3});
+
+            animals = new List<Animal>()
+            {
+                new Animal()
+                {
+                    AnimalId = 1,
+                    Type = "Tiger",
+                    Age = 21,
+                    Name = "Tony"
+                },
+                new Animal(),
+                new Animal()
+            };
+
+            propInfo = typeof (Animal).GetProperty("AnimalId");
+
+            normalizedDataForProperty = normalizer.GetNormalizedDataForProperty(animals, propInfo);
+        }
+
+        [Fact]
+        public void It_Should_Call_GetUniquePropertyValues()
+        {
+            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals && (PropertyInfo)args[1] == propInfo)
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void It_Should_Return_Only_The_Property_Name()
+        {
+            Assert.Equal(new List<List<object>>()
+            {
+                new List<object>() {"AnimalId" }
+            }, normalizedDataForProperty);
+        }
+    }
+
+    public class When_Calling_GetNormalizedDataForProperty_With_A_Property_That_Has_Duplicate_Values
+    {
+        private readonly Normalizer normalizer;
+        private readonly List<Animal> animals;
+        private readonly PropertyInfo propInfo;
+        private readonly List<List<object>> normalizedDataForProperty;
+
+        public When_Calling_GetNormalizedDataForProperty_With_A_Property_That_Has_Duplicate_Values()
+        {
+            normalizer = A.Fake<Normalizer>();
+
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored)).CallsBaseMethod();
+
+            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+                .Returns(new List<object>() { "Tiger" });
+
+            animals = new List<Animal>()
+            {
+                new Animal()
+                {
+                    AnimalId = 1,
+                    Type = "Tiger",
+                    Age = 21,
+                    Name = "Tony"
+                },
+                new Animal(),
+                new Animal()
+            };
+
+            propInfo = typeof(Animal).GetProperty("Type");
+
+            normalizedDataForProperty = normalizer.GetNormalizedDataForProperty(animals, propInfo);
+        }
+
+        [Fact]
+        public void It_Should_Call_GetUniquePropertyValues()
+        {
+            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<Animal>>.Ignored, A<PropertyInfo>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals && (PropertyInfo)args[1] == propInfo)
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void It_Should_Return_The_Property_Name_And_The_Unique_Values()
+        {
+            Assert.Equal(new List<List<object>>()
+            {
+                new List<object>() {"Type", "Tiger" }
+            }, normalizedDataForProperty);
+        }
+    }
+
     #endregion
 
     #region GetUniquePropertyValues

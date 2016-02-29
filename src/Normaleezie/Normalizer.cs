@@ -48,21 +48,35 @@ namespace Normaleezie
 
             foreach (var propInfo in propInfos)
             {
-                List<object> normalizedPropertyData = new List<object>();
-
-                normalizedPropertyData.Add(propInfo.Name);
-
-                List<object> uniquePropertyValues = GetUniquePropertyValues(denormalizedList, propInfo);
-
-                if (uniquePropertyValues.Count < denormalizedList.Count)
-                {
-                    normalizedPropertyData.AddRange(uniquePropertyValues);
-                }
-
-                normalizedDataList.Add(normalizedPropertyData);
+                normalizedDataList.AddRange(GetNormalizedDataForProperty(denormalizedList, propInfo));
             }
 
             return normalizedDataList;
+        }
+
+        internal virtual List<List<object>> GetNormalizedDataForProperty<T>(List<T> denormalizedList, PropertyInfo property)
+        {
+            if (null == denormalizedList)
+            {
+                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+            }
+
+            if (null == property)
+            {
+                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+            }
+
+            List<object> normalizedPropertyData = new List<object>();
+
+            normalizedPropertyData.Add(property.Name);
+
+            List<object> uniquePropertyValues = GetUniquePropertyValues(denormalizedList, property);
+
+            if (uniquePropertyValues.Count < denormalizedList.Count)
+            {
+                normalizedPropertyData.AddRange(uniquePropertyValues);
+            }
+            return new List<List<object>>() { normalizedPropertyData };
         }
 
         internal virtual List<object> GetUniquePropertyValues<T>(List<T> objects, PropertyInfo property)

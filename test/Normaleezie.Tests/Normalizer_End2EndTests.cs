@@ -174,6 +174,55 @@ namespace nEZ.E2E
         }
     }
 
+    public class When_Calling_Normalize_With_A_List_Of_Pets
+    {
+        private readonly List<Pet> pets;
+        private readonly List<List<List<object>>> normalizedForm;
+
+        public When_Calling_Normalize_With_A_List_Of_Pets()
+        {
+            Normalizer normalizer = new Normalizer();
+
+            pets = new List<Pet>()
+            {
+                new Pet() {AnimalId = 10, Age = 15, Name = "Ayla", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
+                new Pet() {AnimalId = 11, Age = 15, Name = "Cookie", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
+                new Pet() {AnimalId = 12, Age = 8, Name = "Bob", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
+                new Pet() {AnimalId = 13, Age = 2, Name = "Ellie", Type = "Dog", Owner = new Person() {Name = "James"} },
+            };
+
+            normalizedForm = normalizer.Normalize(pets);
+        }
+
+        [Fact]
+        public void It_Should_Return_A_List_In_Normalized_Form()
+        {
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
+
+            //Assert.Equal(new List<object>() { "AnimalId" }, normalizedForm[0][0]);
+            //Assert.Equal(new List<object>() { "Age", 10, 11, 2, 15 }, normalizedForm[0][1]);
+            //Assert.Equal(new List<object>() { "Name", "Tony", "Lenny", "John", "Garry", "Zachary" }, normalizedForm[0][2]);
+            //Assert.Equal(new List<object>() { "Type", "Tiger", "Giraffe", "Zebra" }, normalizedForm[0][3]);
+
+            //Assert.Equal(new List<object>() { 101, 1, 1, 1 }, normalizedForm[1][0]);
+            //Assert.Equal(new List<object>() { 102, 2, 2, 1 }, normalizedForm[1][1]);
+            //Assert.Equal(new List<object>() { 103, 3, 3, 1 }, normalizedForm[1][2]);
+            //Assert.Equal(new List<object>() { 104, 4, 1, 2 }, normalizedForm[1][3]);
+            //Assert.Equal(new List<object>() { 105, 1, 4, 2 }, normalizedForm[1][4]);
+            //Assert.Equal(new List<object>() { 106, 1, 5, 3 }, normalizedForm[1][5]);
+        }
+
+        [Fact]
+        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(pets);
+
+            Assert.True(normalizedJson.Length < serializedJson.Length);
+        }
+    }
+
     public class When_Calling_Normalize_With_A_List_List_Of_Books
     {
         private readonly List<List<Book>> libraries;
@@ -274,43 +323,6 @@ namespace nEZ.E2E
 
         //    Assert.True(normalizedJson.Length < serializedJson.Length);
         //}
-    }
-
-    public class When_Calling_Normalize_With_A_List_Of_Pets
-    {
-        private readonly List<Pet> pets;
-        private readonly List<List<List<object>>> normalizedForm;
-
-        public When_Calling_Normalize_With_A_List_Of_Pets()
-        {
-            Normalizer normalizer = new Normalizer();
-
-            pets = new List<Pet>()
-            {
-                new Pet() {AnimalId = 10, Age = 15, Name = "Ayla", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
-                new Pet() {AnimalId = 11, Age = 15, Name = "Cookie", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
-                new Pet() {AnimalId = 12, Age = 8, Name = "Bob", Type = "Cat", Owner = new Person() {Name = "Jennifer"} },
-                new Pet() {AnimalId = 13, Age = 2, Name = "Ellie", Type = "Dog", Owner = new Person() {Name = "James"} },
-            };
-
-            normalizedForm = normalizer.Normalize(pets);
-        }
-
-        [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
-        {
-            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
-            Assert.NotEmpty(normalizedForm);
-        }
-
-        [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
-        {
-            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
-            string serializedJson = JsonConvert.SerializeObject(pets);
-
-            Assert.True(normalizedJson.Length < serializedJson.Length);
-        }
     }
 
     public class When_Calling_Normalize_With_A_List_Of_People
