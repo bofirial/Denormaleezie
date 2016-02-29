@@ -54,7 +54,7 @@ namespace Normaleezie
             return normalizedDataList;
         }
 
-        internal virtual List<List<object>> GetNormalizedDataForProperty<T>(List<T> denormalizedList, PropertyInfo property)
+        internal virtual List<List<object>> GetNormalizedDataForProperty<T>(List<T> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
         {
             if (null == denormalizedList)
             {
@@ -66,18 +66,44 @@ namespace Normaleezie
                 throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
             }
 
-            List<object> normalizedPropertyData = new List<object>();
+            if (IsSimpleType(property.PropertyType))
+            {
+                List<List<object>> normalizedDataForProperty = new List<List<object>>();
+                IEnumerable<PropertyInfo> subProperties = property.PropertyType.GetProperties();
+                List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
 
-            normalizedPropertyData.Add(property.Name);
+                foreach (var subProperty in subProperties)
+                {
+                    normalizedDataForProperty.AddRange(GetNormalizedDataForProperty(childList, subProperty, propertyNamePrefix + property.Name + "."));
+                }
 
+                return normalizedDataForProperty;
+            }
+
+            List<object> normalizedPropertyData = new List<object>
+            {
+                string.Join(string.Empty, propertyNamePrefix, property.Name)
+            };
+            
             List<object> uniquePropertyValues = GetUniquePropertyValues(denormalizedList, property);
 
             if (uniquePropertyValues.Count < denormalizedList.Count)
             {
                 normalizedPropertyData.AddRange(uniquePropertyValues);
             }
+
             return new List<List<object>>() { normalizedPropertyData };
         }
+
+        internal virtual bool IsSimpleType(Type type)
+        {
+            if (null == type)
+            {
+                throw new ArgumentException(nameof(type) + " must not be null.", nameof(type));
+            }
+
+            return Type.GetTypeCode(type) == TypeCode.Object;
+        } 
 
         internal virtual List<object> GetUniquePropertyValues<T>(List<T> objects, PropertyInfo property)
         {
@@ -141,8 +167,26 @@ namespace Normaleezie
             }
 
             string propName = (string)normalizedPropertyData[0];
-            PropertyInfo propInfo = typeof(T).GetProperty(propName);
+            List<object> subPropertyNormalizedPropertyData = null;
+
+            if (propName.Contains('.'))
+            {
+                string[] propertyNameParts = propName.Split('.');
+                propName = propertyNameParts[0];
+                string subPropName = string.Join(".", propertyNameParts.Skip(1));
+
+                subPropertyNormalizedPropertyData = new List<object>() { subPropName };
+
+                subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+            }
+
+            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propName);
             object val = propInfo.GetValue(denormalizedItem, null);
+
+            if (null != subPropertyNormalizedPropertyData)
+            {
+                return GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData);
+            }
 
             if (1 == normalizedPropertyData.Count)
             {

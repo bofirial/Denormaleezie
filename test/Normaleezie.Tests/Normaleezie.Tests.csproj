@@ -73,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test Classes\Animal.cs" />
     <Compile Include="Test Classes\Book.cs" />
+    <Compile Include="Test Classes\BookMark.cs" />
     <Compile Include="Test Classes\Person.cs" />
     <Compile Include="Test Classes\Pet.cs" />
   </ItemGroup>
