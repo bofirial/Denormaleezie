@@ -220,13 +220,13 @@ namespace nEZ.Unit
             getNormalizedDataForPropertyReturnValues = new List<List<List<object>>>()
             {
                 new List<List<object>>() {
+                    new List<object>() {"Name" }
+                },
+                new List<List<object>>() {
                     new List<object>() {"AnimalId" }
                 },
                 new List<List<object>>() {
                     new List<object>() {"Age", 21, 12 }
-                },
-                new List<List<object>>() {
-                    new List<object>() {"Name" }
                 },
                 new List<List<object>>() {
                     new List<object>() {"Type", "Tiger" }
@@ -267,13 +267,13 @@ namespace nEZ.Unit
         }
 
         [Fact]
-        public void It_Should_Return_The_Data_From_GetNormalizedDataForProperty()
+        public void It_Should_Return_The_Data_From_GetNormalizedDataForProperty_Sorted_By_PropertyName()
         {
             Assert.Equal(new List<List<object>>()
             {
-                getNormalizedDataForPropertyReturnValues[0][0],
-                getNormalizedDataForPropertyReturnValues[1][0],
                 getNormalizedDataForPropertyReturnValues[2][0],
+                getNormalizedDataForPropertyReturnValues[1][0],
+                getNormalizedDataForPropertyReturnValues[0][0],
                 getNormalizedDataForPropertyReturnValues[3][0],
             }, normalizedDataList);
         }

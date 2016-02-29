@@ -51,6 +51,8 @@ namespace Normaleezie
                 normalizedDataList.AddRange(GetNormalizedDataForProperty(denormalizedList, propInfo));
             }
 
+            normalizedDataList.Sort((a, b) => string.CompareOrdinal(a[0].ToString(), b[0].ToString()));
+
             return normalizedDataList;
         }
 
