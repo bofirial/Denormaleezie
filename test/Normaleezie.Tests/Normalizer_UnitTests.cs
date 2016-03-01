@@ -611,6 +611,90 @@ namespace nEZ.Unit
         }
     }
 
+    public class When_Calling_GetNormalizedDataForProperty_With_A_List_Property
+    {
+        private readonly Normalizer normalizer;
+        private readonly List<Zoo> zoos;
+        private readonly PropertyInfo propInfo;
+        private readonly List<List<object>> normalizedDataForProperty;
+        private readonly List<List<List<object>>> getNormalizedDataForPropertySubPropertyReturnValues;
+
+        public When_Calling_GetNormalizedDataForProperty_With_A_List_Property()
+        {
+            normalizer = A.Fake<Normalizer>();
+
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<Zoo>>.Ignored, A<PropertyInfo>.Ignored, A<string>.Ignored)).CallsBaseMethod();
+
+            A.CallTo(() => normalizer.IsSimpleType(A<Type>.Ignored)).Returns(true);
+
+            getNormalizedDataForPropertySubPropertyReturnValues = new List<List<List<object>>>()
+            {
+                new List<List<object>>() { new List<object>() { "Animals~Age", 20, 3, 16 } },
+                new List<List<object>>() { new List<object>() { "Animals~AnimalId" } },
+                new List<List<object>>() { new List<object>() { "Animals~Name", "Tony", "Tania", "Zachary" } },
+                new List<List<object>>() { new List<object>() { "Animals~Type", "Tiger", "Zebra" } }
+            };
+
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<object>>.Ignored, A<PropertyInfo>.Ignored, A<string>.Ignored))
+                .ReturnsNextFromSequence(getNormalizedDataForPropertySubPropertyReturnValues.ToArray());
+
+            zoos = new List<Zoo>()
+            {
+                new Zoo()
+                {
+                    Name = "Columbus Zoo and Aquarium",
+                    Animals = new List<Animal>()
+                    {
+                        new Animal() {Age = 20, AnimalId = 101, Name = "Tony", Type = "Tiger"},
+                        new Animal() {Age = 20, AnimalId = 102, Name = "Tania", Type = "Tiger"},
+                        new Animal() {Age = 3, AnimalId = 103, Name = "Zachary", Type = "Zebra"}
+                    }
+                },
+                new Zoo()
+                {
+                    Name = "Cincinnati Zoo and Botanical Garden",
+                    Animals = new List<Animal>()
+                    {
+                        new Animal() {Age = 16, AnimalId = 104, Name = "Tony", Type = "Tiger"},
+                    }
+
+                }
+            };
+
+            propInfo = typeof(Zoo).GetProperty("Animals");
+
+            normalizedDataForProperty = normalizer.GetNormalizedDataForProperty(zoos, propInfo);
+        }
+
+        [Fact]
+        public void It_Should_Call_IsSimpleType()
+        {
+            A.CallTo(() => normalizer.IsSimpleType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type)args[0] == propInfo.PropertyType)
+                .MustHaveHappened();
+        }
+
+        [Fact]
+        public void It_Should_NOT_Call_GetUniquePropertyValues()
+        {
+            A.CallTo(() => normalizer.GetUniquePropertyValues(A<List<BookMark>>.Ignored, A<PropertyInfo>.Ignored)).MustNotHaveHappened();
+        }
+
+        [Fact]
+        public void It_Should_Call_GetNormalizedDataForProperty()
+        {
+            A.CallTo(() => normalizer.GetNormalizedDataForProperty(A<List<object>>.Ignored, A<PropertyInfo>.Ignored, A<string>.Ignored))
+                .WhenArgumentsMatch(args => args[2].ToString() == "Animals~")
+                .MustHaveHappened(Repeated.Exactly.Times(typeof(Animal).GetProperties().Count()));
+        }
+
+        [Fact]
+        public void It_Should_Return_The_Data_From_The_SubProperty_GetNormalizedDataForProperty_Calls()
+        {
+            Assert.Equal(getNormalizedDataForPropertySubPropertyReturnValues.Select(i => i.First()).ToList(), normalizedDataForProperty);
+        }
+    }
+
     #endregion
 
     #region IsSimpleType

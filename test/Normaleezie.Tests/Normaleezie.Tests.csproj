@@ -76,6 +76,7 @@
     <Compile Include="Test Classes\BookMark.cs" />
     <Compile Include="Test Classes\Person.cs" />
     <Compile Include="Test Classes\Pet.cs" />
+    <Compile Include="Test Classes\Zoo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

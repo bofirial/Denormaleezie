@@ -73,10 +73,25 @@ namespace Normaleezie
                 List<List<object>> normalizedDataForProperty = new List<List<object>>();
                 IEnumerable<PropertyInfo> subProperties = property.PropertyType.GetProperties();
                 List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
+                string subPropertyNamePrefix = propertyNamePrefix + property.Name + ".";
+
+                if (null != property.PropertyType.GetInterface("IEnumerable"))
+                {
+                    childList = childList.SelectMany(i => (IEnumerable<object>)i).ToList();
+
+                    object firstItem = childList.FirstOrDefault(o => o != null);
+
+                    if (firstItem != null)
+                    {
+                        subProperties = firstItem.GetType().GetProperties();
+                    }
+
+                    subPropertyNamePrefix = propertyNamePrefix + property.Name + "~";
+                }
 
                 foreach (var subProperty in subProperties)
                 {
-                    normalizedDataForProperty.AddRange(GetNormalizedDataForProperty(childList, subProperty, propertyNamePrefix + property.Name + "."));
+                    normalizedDataForProperty.AddRange(GetNormalizedDataForProperty(childList, subProperty, subPropertyNamePrefix));
                 }
 
                 return normalizedDataForProperty;
