@@ -108,9 +108,16 @@ namespace Normaleezie
                 return new List<List<object>>() { new List<object>() { propertyNamePrefix, null} };
             }
 
+            Type listItemType = firstItem.GetType();
+
+            if (null != listItemType.GetInterface("IEnumerable") && listItemType != typeof(string))
+            {
+                return GetNormalizedDataForList(denormalizedList.SelectMany(i => (IEnumerable<object>)i).ToList(), "~");
+            }
+
             List<List<object>> normalizedDataForList = new List<List<object>>();
 
-            foreach (var subProperty in firstItem.GetType().GetProperties())
+            foreach (var subProperty in listItemType.GetProperties())
             {
                 normalizedDataForList.AddRange(GetNormalizedDataForProperty(denormalizedList, subProperty, propertyNamePrefix));
             }
@@ -240,27 +247,43 @@ namespace Normaleezie
                 throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
             }
 
-            string propName = (string)normalizedPropertyData[0];
-            List<object> subPropertyNormalizedPropertyData = null;
+            string propertyName = (string)normalizedPropertyData[0];
 
-            if (propName.Contains('.'))
+            int index = propertyName.IndexOfAny(new char[] {'.', '~'});
+
+            if (index > -1)
             {
-                string[] propertyNameParts = propName.Split('.');
-                propName = propertyNameParts[0];
-                string subPropName = string.Join(".", propertyNameParts.Skip(1));
+                if (propertyName[index] == '.')
+                {
+                    return GetNormalizedItemPropertyObjectForComplexProperty(denormalizedItem, normalizedPropertyData, propertyName);
+                }
 
-                subPropertyNormalizedPropertyData = new List<object>() { subPropName };
-
-                subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+                return GetNormalizedItemPropertyObjectForListProperty(denormalizedItem, normalizedPropertyData, propertyName);
             }
 
-            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propName);
+            return GetNormalizedItemPropertyObjectForSimpleProperty(denormalizedItem, normalizedPropertyData, propertyName);
+        }
+
+        internal virtual object GetNormalizedItemPropertyObjectForSimpleProperty<T>(T denormalizedItem,
+            List<object> normalizedPropertyData, string propertyName)
+        {
+            if (null == denormalizedItem)
+            {
+                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+            }
+
+            if (null == normalizedPropertyData)
+            {
+                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+            }
+
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+            }
+
+            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyName);
             object val = propInfo.GetValue(denormalizedItem, null);
-
-            if (null != subPropertyNormalizedPropertyData)
-            {
-                return GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData);
-            }
 
             if (1 == normalizedPropertyData.Count)
             {
@@ -275,6 +298,80 @@ namespace Normaleezie
             }
 
             return position;
+        }
+
+        internal virtual object GetNormalizedItemPropertyObjectForListProperty<T>(T denormalizedItem,
+            List<object> normalizedPropertyData, string propertyName)
+        {
+            if (null == denormalizedItem)
+            {
+                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+            }
+
+            if (null == normalizedPropertyData)
+            {
+                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+            }
+
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+            }
+
+            string[] propertyNameParts = propertyName.Split('~');
+            string subPropName = string.Join("~", propertyNameParts.Skip(1));
+
+            object list = denormalizedItem;
+
+            if (!string.IsNullOrEmpty(propertyNameParts[0]))
+            {
+                PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyNameParts[0]);
+                list = propInfo.GetValue(denormalizedItem, null); 
+            }
+
+            List<object> subPropertyNormalizedPropertyData = new List<object>() { subPropName };
+
+            subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+
+            List<object> normalizedItemPropertyObject = new List<object>();
+
+            foreach (var val in (IEnumerable)list)
+            {
+                normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData));
+            }
+
+            return normalizedItemPropertyObject;
+        }
+
+        internal virtual object GetNormalizedItemPropertyObjectForComplexProperty<T>(T denormalizedItem,
+            List<object> normalizedPropertyData, string propertyName)
+        {
+            if (null == denormalizedItem)
+            {
+                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+            }
+
+            if (null == normalizedPropertyData)
+            {
+                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+            }
+
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+            }
+            
+            string[] propertyNameParts = propertyName.Split('.');
+            string subPropName = string.Join(".", propertyNameParts.Skip(1));
+
+            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyNameParts[0]);
+            object val = propInfo.GetValue(denormalizedItem, null);
+
+            List<object> subPropertyNormalizedPropertyData = new List<object>() { subPropName };
+
+            subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+
+            return GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData);
         }
     }
 }

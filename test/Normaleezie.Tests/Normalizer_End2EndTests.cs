@@ -280,7 +280,7 @@ namespace nEZ.E2E
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
-            
+
             Assert.Equal(new List<object>() { "Book.Author", "J.R.R. Tolkien", "Jim Butcher" }, normalizedForm[0][0]);
             Assert.Equal(new List<object>() { "Book.HasRead", true, false }, normalizedForm[0][1]);
             Assert.Equal(new List<object>() { "Book.PublishDate" }, normalizedForm[0][2]);
@@ -304,6 +304,57 @@ namespace nEZ.E2E
         {
             string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
             string serializedJson = JsonConvert.SerializeObject(bookMarks);
+
+            Assert.True(normalizedJson.Length < serializedJson.Length);
+        }
+    }
+
+    public class When_Calling_Normalize_With_A_List_Of_Zoos
+    {
+        private readonly List<Zoo> zoos;
+        private readonly List<List<List<object>>> normalizedForm;
+
+        public When_Calling_Normalize_With_A_List_Of_Zoos()
+        {
+            Normalizer normalizer = new Normalizer();
+
+            zoos = new List<Zoo>()
+            {
+                new Zoo()
+                {
+                    Name = "Columbus Zoo and Aquarium",
+                    Animals = new List<Animal>()
+                    {
+                        new Animal() {Age = 20, AnimalId = 101, Name = "Tony", Type = "Tiger"},
+                        new Animal() {Age = 20, AnimalId = 102, Name = "Tania", Type = "Tiger"},
+                        new Animal() {Age = 3, AnimalId = 103, Name = "Zachary", Type = "Zebra"}
+                    }
+                },
+                new Zoo()
+                {
+                    Name = "Cincinnati Zoo and Botanical Garden",
+                    Animals = new List<Animal>()
+                    {
+                        new Animal() {Age = 16, AnimalId = 104, Name = "Tony", Type = "Tiger"},
+                    }
+                }
+            };
+
+            normalizedForm = normalizer.Normalize(zoos);
+        }
+
+        [Fact]
+        public void It_Should_Return_A_List_In_Normalized_Form()
+        {
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
+        }
+
+        [Fact]
+        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(zoos);
 
             Assert.True(normalizedJson.Length < serializedJson.Length);
         }
@@ -367,93 +418,48 @@ namespace nEZ.E2E
             normalizedForm = normalizer.Normalize(libraries);
         }
 
-        //[Fact]
-        //public void It_Should_Return_A_List_In_Normalized_Form()
-        //{
-        //    Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
-        //    Assert.NotEmpty(normalizedForm);
-
-        //    Assert.Equal(new List<object>() { "Title" }, normalizedForm[0][0]);
-        //    Assert.Equal(new List<object>() { "Author", "J.R.R. Tolkien", "Jim Butcher" }, normalizedForm[0][1]);
-        //    Assert.Equal(new List<object>() { "PublishDate" }, normalizedForm[0][2]);
-        //    Assert.Equal(new List<object>() { "Series", "The Lord of the Rings", "The Dresden Files" }, normalizedForm[0][3]);
-        //    Assert.Equal(new List<object>() { "PurchaseLocation", "Barnes and Noble", "Amazon" }, normalizedForm[0][4]);
-        //    Assert.Equal(new List<object>() { "PurchaseYear", 2000, 2015, 2016 }, normalizedForm[0][5]);
-        //    Assert.Equal(new List<object>() { "HasRead", true, false }, normalizedForm[0][6]);
-
-        //    Assert.Equal(new List<object>() { "The Fellowship of the Ring", 1, new DateTime(1954, 7, 29), 1, 1, 1, 1 }, normalizedForm[1][0]);
-        //    Assert.Equal(new List<object>() { "The Two Towers", 1, new DateTime(1954, 11, 11), 1, 1, 1, 1 }, normalizedForm[1][1]);
-        //    Assert.Equal(new List<object>() { "The Return of the King", 1, new DateTime(1955, 10, 20), 1, 1, 1, 1 }, normalizedForm[1][2]);
-        //    Assert.Equal(new List<object>() { "Storm Front", 2, new DateTime(2000, 4, 1), 2, 2, 2, 1 }, normalizedForm[1][3]);
-        //    Assert.Equal(new List<object>() { "Fool Moon", 2, new DateTime(2001, 1, 1), 2, 2, 2, 1 }, normalizedForm[1][4]);
-        //    Assert.Equal(new List<object>() { "Grave Peril", 2, new DateTime(2001, 9, 1), 2, 2, 2, 1 }, normalizedForm[1][5]);
-        //    Assert.Equal(new List<object>() { "Summer Knight", 2, new DateTime(2002, 2, 2), 2, 2, 2, 1 }, normalizedForm[1][6]);
-        //    Assert.Equal(new List<object>() { "Death Masks", 2, new DateTime(2003, 8, 5), 2, 2, 2, 1 }, normalizedForm[1][7]);
-        //    Assert.Equal(new List<object>() { "Blood Rites", 2, new DateTime(2004, 8, 2), 2, 2, 2, 1 }, normalizedForm[1][8]);
-        //    Assert.Equal(new List<object>() { "Dead Beat", 2, new DateTime(2005, 5, 3), 2, 2, 2, 1 }, normalizedForm[1][9]);
-        //    Assert.Equal(new List<object>() { "Proven Guilty", 2, new DateTime(2006, 5, 2), 2, 2, 2, 1 }, normalizedForm[1][10]);
-        //    Assert.Equal(new List<object>() { "White Night", 2, new DateTime(2007, 4, 3), 2, 2, 2, 1 }, normalizedForm[1][11]);
-        //    Assert.Equal(new List<object>() { "Small Favor", 2, new DateTime(2008, 4, 1), 2, 2, 3, 1 }, normalizedForm[1][12]);
-        //    Assert.Equal(new List<object>() { "Turn Coat", 2, new DateTime(2009, 4, 7), 2, 2, 3, 1 }, normalizedForm[1][13]);
-        //    Assert.Equal(new List<object>() { "Changes", 2, new DateTime(2010, 4, 6), 2, 2, 3, 2 }, normalizedForm[1][14]);
-        //    Assert.Equal(new List<object>() { "Ghost Story", 2, new DateTime(2011, 4, 26), 2, 2, 3, 2 }, normalizedForm[1][15]);
-        //    Assert.Equal(new List<object>() { "Cold Days", 2, new DateTime(2012, 11, 27), 2, 2, 3, 2 }, normalizedForm[1][16]);
-        //    Assert.Equal(new List<object>() { "Skin Game", 2, new DateTime(2014, 5, 27), 2, 2, 3, 2 }, normalizedForm[1][17]);
-        //}
-
-        //[Fact]
-        //public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
-        //{
-        //    string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
-        //    string serializedJson = JsonConvert.SerializeObject(libraries);
-
-        //    Assert.True(normalizedJson.Length < serializedJson.Length);
-        //}
-    }
-
-    public class When_Calling_Normalize_With_A_List_Of_People
-    {
-        private readonly List<Person> people;
-        private readonly List<List<List<object>>> normalizedForm;
-
-        public When_Calling_Normalize_With_A_List_Of_People()
+        [Fact]
+        public void It_Should_Return_A_List_In_Normalized_Form()
         {
-            Normalizer normalizer = new Normalizer();
+            Assert.IsType(typeof (List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
 
-            people = new List<Person>()
-            {
-                new Person() {Name = "Jennifer", Pets = new List<Pet>()
-                {
-                    new Pet() {AnimalId = 10, Age = 15, Name = "Ayla", Type = "Cat" },
-                    new Pet() {AnimalId = 11, Age = 15, Name = "Cookie", Type = "Cat" },
-                    new Pet() {AnimalId = 12, Age = 8, Name = "Bob", Type = "Cat"}
-                }},
+            //    Assert.Equal(new List<object>() { "Title" }, normalizedForm[0][0]);
+            //    Assert.Equal(new List<object>() { "Author", "J.R.R. Tolkien", "Jim Butcher" }, normalizedForm[0][1]);
+            //    Assert.Equal(new List<object>() { "PublishDate" }, normalizedForm[0][2]);
+            //    Assert.Equal(new List<object>() { "Series", "The Lord of the Rings", "The Dresden Files" }, normalizedForm[0][3]);
+            //    Assert.Equal(new List<object>() { "PurchaseLocation", "Barnes and Noble", "Amazon" }, normalizedForm[0][4]);
+            //    Assert.Equal(new List<object>() { "PurchaseYear", 2000, 2015, 2016 }, normalizedForm[0][5]);
+            //    Assert.Equal(new List<object>() { "HasRead", true, false }, normalizedForm[0][6]);
 
-                new Person() {Name = "James", Pets = new List<Pet>()
-                {
-                    new Pet() {AnimalId = 12, Age = 8, Name = "Bob", Type = "Cat"},
-                    new Pet() {AnimalId = 14, Age = 12, Name = "Tiger", Type = "Cat"}
-                }}
-            };
-
-            normalizedForm = normalizer.Normalize(people);
+            //    Assert.Equal(new List<object>() { "The Fellowship of the Ring", 1, new DateTime(1954, 7, 29), 1, 1, 1, 1 }, normalizedForm[1][0]);
+            //    Assert.Equal(new List<object>() { "The Two Towers", 1, new DateTime(1954, 11, 11), 1, 1, 1, 1 }, normalizedForm[1][1]);
+            //    Assert.Equal(new List<object>() { "The Return of the King", 1, new DateTime(1955, 10, 20), 1, 1, 1, 1 }, normalizedForm[1][2]);
+            //    Assert.Equal(new List<object>() { "Storm Front", 2, new DateTime(2000, 4, 1), 2, 2, 2, 1 }, normalizedForm[1][3]);
+            //    Assert.Equal(new List<object>() { "Fool Moon", 2, new DateTime(2001, 1, 1), 2, 2, 2, 1 }, normalizedForm[1][4]);
+            //    Assert.Equal(new List<object>() { "Grave Peril", 2, new DateTime(2001, 9, 1), 2, 2, 2, 1 }, normalizedForm[1][5]);
+            //    Assert.Equal(new List<object>() { "Summer Knight", 2, new DateTime(2002, 2, 2), 2, 2, 2, 1 }, normalizedForm[1][6]);
+            //    Assert.Equal(new List<object>() { "Death Masks", 2, new DateTime(2003, 8, 5), 2, 2, 2, 1 }, normalizedForm[1][7]);
+            //    Assert.Equal(new List<object>() { "Blood Rites", 2, new DateTime(2004, 8, 2), 2, 2, 2, 1 }, normalizedForm[1][8]);
+            //    Assert.Equal(new List<object>() { "Dead Beat", 2, new DateTime(2005, 5, 3), 2, 2, 2, 1 }, normalizedForm[1][9]);
+            //    Assert.Equal(new List<object>() { "Proven Guilty", 2, new DateTime(2006, 5, 2), 2, 2, 2, 1 }, normalizedForm[1][10]);
+            //    Assert.Equal(new List<object>() { "White Night", 2, new DateTime(2007, 4, 3), 2, 2, 2, 1 }, normalizedForm[1][11]);
+            //    Assert.Equal(new List<object>() { "Small Favor", 2, new DateTime(2008, 4, 1), 2, 2, 3, 1 }, normalizedForm[1][12]);
+            //    Assert.Equal(new List<object>() { "Turn Coat", 2, new DateTime(2009, 4, 7), 2, 2, 3, 1 }, normalizedForm[1][13]);
+            //    Assert.Equal(new List<object>() { "Changes", 2, new DateTime(2010, 4, 6), 2, 2, 3, 2 }, normalizedForm[1][14]);
+            //    Assert.Equal(new List<object>() { "Ghost Story", 2, new DateTime(2011, 4, 26), 2, 2, 3, 2 }, normalizedForm[1][15]);
+            //    Assert.Equal(new List<object>() { "Cold Days", 2, new DateTime(2012, 11, 27), 2, 2, 3, 2 }, normalizedForm[1][16]);
+            //    Assert.Equal(new List<object>() { "Skin Game", 2, new DateTime(2014, 5, 27), 2, 2, 3, 2 }, normalizedForm[1][17]);
         }
 
-        //[Fact]
-        //public void It_Should_Return_A_List_In_Normalized_Form()
-        //{
-        //    Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
-        //    Assert.NotEmpty(normalizedForm);
-        //}
+        [Fact]
+        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(libraries);
 
-        //[Fact]
-        //public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
-        //{
-        //    string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
-        //    string serializedJson = JsonConvert.SerializeObject(people);
-
-        //    Assert.True(normalizedJson.Length < serializedJson.Length);
-        //}
+            Assert.True(normalizedJson.Length < serializedJson.Length);
+        }
     }
 
     public class When_Calling_Normalize_With_A_List_Of_People_Containing_A_Circular_Reference
