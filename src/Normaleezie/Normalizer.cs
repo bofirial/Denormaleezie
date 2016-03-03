@@ -23,10 +23,10 @@ namespace Normaleezie
         internal virtual List<List<List<object>>> ConvertToNormalizedForm<T>(List<T> denormalizedList)
         {
             List<List<object>> normalizedDataList = CreateNormalizedDataList(denormalizedList);
-            List<List<object>> normalizedStructureList = CreateNormalizedStructureList(denormalizedList.Select(i => (object)i).ToList(), normalizedDataList);
+            //List<List<object>> normalizedStructureList = CreateNormalizedStructureList(denormalizedList.Select(i => (object)i).ToList(), normalizedDataList);
 
             return new List<List<List<object>>>() {
-                normalizedDataList, normalizedStructureList
+                normalizedDataList//, normalizedStructureList
             };
         }
 
@@ -34,7 +34,7 @@ namespace Normaleezie
         {
             List<List<object>> normalizedDataList = GetNormalizedDataForList(denormalizedList);
 
-            normalizedDataList.Sort((a, b) => string.CompareOrdinal(a[0].ToString(), b[0].ToString()));
+            //normalizedDataList.Sort((a, b) => string.CompareOrdinal(a[0].ToString(), b[0].ToString()));
 
             return normalizedDataList;
         }
@@ -73,31 +73,27 @@ namespace Normaleezie
                 var method = thisType.GetMethod("GetNormalizedDataForList", BindingFlags.NonPublic | BindingFlags.Instance);
                 var genMeth = method.MakeGenericMethod(typeof(T).GetGenericArguments().First());
 
-                return (List<List<object>>) genMeth.Invoke(this, new object[] { typedPropValues, dataName + "~"});
+                var normalizedDataForList = new List<object>() {dataName + "~"};
+
+                normalizedDataForList.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, null })));
+
+                return new List<List<object>>() { normalizedDataForList };
+
+                //return (List<List<object>>) genMeth.Invoke(this, new object[] { typedPropValues, dataName + "~"});
 
                 //return GetNormalizedDataForList(denormalizedList.SelectMany(i => (IEnumerable<dynamic>)i).ToList(), dataName + "~");
             }
 
             if (!IsSimpleType(typeof(T)))
             {
-                List<List<object>> normalizedDataForList = new List<List<object>>();
+                List<List<object>> normalizedDataForProperties = new List<List<object>>();
 
-                foreach (var subProperty in typeof(T).GetProperties())
+                var props = typeof (T).GetProperties().ToList();
+
+                props.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+                
+                foreach (var subProperty in props)
                 {
-                    string dataNameForProperty = subProperty.Name;
-
-                    if (!string.IsNullOrEmpty(dataName))
-                    {
-                        string seperator = ".";
-
-                        if (dataName.Last() == '~')
-                        {
-                            seperator = string.Empty;
-                        }
-
-                        dataNameForProperty = string.Join(seperator, dataName, subProperty.Name);
-                    }
-
                     var propValues = denormalizedList.Select(t =>
                         Convert.ChangeType(subProperty.GetValue(t, null), subProperty.PropertyType)).ToList();
 
@@ -113,16 +109,22 @@ namespace Normaleezie
                     var method = thisType.GetMethod("GetNormalizedDataForList", BindingFlags.NonPublic | BindingFlags.Instance);
                     var genMeth = method.MakeGenericMethod(subProperty.PropertyType);
 
-                    normalizedDataForList.AddRange((List<List<object>>)
-                        genMeth.Invoke(this,
-                        new object[] { typedPropValues, dataNameForProperty }));
+                    normalizedDataForProperties.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, subProperty.Name })));
 
                     //normalizedDataForList.AddRange(
                     //    GetNormalizedDataForList(denormalizedList.Select(t => (dynamic)Convert.ChangeType(subProperty.GetValue(t, null), subProperty.PropertyType)).ToList(),
                     //    dataNameForProperty));
                 }
 
-                return normalizedDataForList;
+                if (string.IsNullOrEmpty(dataName))
+                {
+                    return normalizedDataForProperties;
+                }
+                List<object> normalizedDataForList = new List<object>() { dataName + "." };
+
+                normalizedDataForList.AddRange(normalizedDataForProperties);
+
+                return new List<List<object>>() { normalizedDataForList };
             }
 
             List<object> normalizedData = new List<object>() { dataName };
