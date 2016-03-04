@@ -39,7 +39,7 @@ namespace Normaleezie
             return normalizedDataList;
         }
 
-        internal virtual List<List<object>> GetNormalizedDataForList<T>(List<T> denormalizedList, string dataName = "")
+        internal virtual List<List<object>> GetNormalizedDataForList<T>(List<T> denormalizedList, List<string> previousDataNames = null, string dataName = "")
         {
             if (null == denormalizedList)
             {
@@ -49,6 +49,26 @@ namespace Normaleezie
             if (!denormalizedList.Any())
             {
                 return new List<List<object>>() { new List<object>() { dataName } };
+            }
+
+            if (previousDataNames == null)
+            {
+                previousDataNames = new List<string>();
+            }
+
+            previousDataNames.Add(dataName);
+
+            if (previousDataNames.Count() > 100)
+            {
+                var result = from id in previousDataNames
+                group id by id into g
+                orderby g.Count() descending
+                select new { Id = g.Key, Count = g.Count() };
+
+                if (result.ToList()[0].Count > 20)
+                {
+                    throw new Exception("Circular Reference Detected in object.");
+                }
             }
 
             if (null != typeof(T).GetInterface("IEnumerable") && typeof(T) != typeof(string))
@@ -75,7 +95,7 @@ namespace Normaleezie
 
                 var normalizedDataForList = new List<object>() {dataName + "~"};
 
-                normalizedDataForList.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, null })));
+                normalizedDataForList.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, previousDataNames, null })));
 
                 return new List<List<object>>() { normalizedDataForList };
 
@@ -109,7 +129,7 @@ namespace Normaleezie
                     var method = thisType.GetMethod("GetNormalizedDataForList", BindingFlags.NonPublic | BindingFlags.Instance);
                     var genMeth = method.MakeGenericMethod(subProperty.PropertyType);
 
-                    normalizedDataForProperties.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, subProperty.Name })));
+                    normalizedDataForProperties.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, previousDataNames, subProperty.Name })));
 
                     //normalizedDataForList.AddRange(
                     //    GetNormalizedDataForList(denormalizedList.Select(t => (dynamic)Convert.ChangeType(subProperty.GetValue(t, null), subProperty.PropertyType)).ToList(),
@@ -180,101 +200,101 @@ namespace Normaleezie
         //    return normalizedDataForList;
         //}
 
-        internal virtual List<List<object>> GetNormalizedDataForProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
-        {
-            if (null == denormalizedList)
-            {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
-            }
+        //internal virtual List<List<object>> GetNormalizedDataForProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
+        //{
+        //    if (null == denormalizedList)
+        //    {
+        //        throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+        //    }
 
-            if (null == property)
-            {
-                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
-            }
+        //    if (null == property)
+        //    {
+        //        throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+        //    }
 
-            if (!IsSimpleType(property.PropertyType))
-            {
-                if (null != property.PropertyType.GetInterface("IEnumerable") && property.PropertyType != typeof(string))
-                {
-                    return GetNormalizedDataForListProperty(denormalizedList, property, propertyNamePrefix);
-                }
+        //    if (!IsSimpleType(property.PropertyType))
+        //    {
+        //        if (null != property.PropertyType.GetInterface("IEnumerable") && property.PropertyType != typeof(string))
+        //        {
+        //            return GetNormalizedDataForListProperty(denormalizedList, property, propertyNamePrefix);
+        //        }
 
-                return GetNormalizedDataForComplexProperty(denormalizedList, property, propertyNamePrefix);
-            }
+        //        return GetNormalizedDataForComplexProperty(denormalizedList, property, propertyNamePrefix);
+        //    }
 
-            return GetNormalizedDataForSimpleProperty(denormalizedList, property, propertyNamePrefix);
-        }
+        //    return GetNormalizedDataForSimpleProperty(denormalizedList, property, propertyNamePrefix);
+        //}
 
-        internal virtual List<List<object>> GetNormalizedDataForListProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
-        {
-            if (null == denormalizedList)
-            {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
-            }
+        //internal virtual List<List<object>> GetNormalizedDataForListProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
+        //{
+        //    if (null == denormalizedList)
+        //    {
+        //        throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+        //    }
             
-            if (null == property)
-            {
-                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
-            }
+        //    if (null == property)
+        //    {
+        //        throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+        //    }
             
-            List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
-            string subPropertyNamePrefix = propertyNamePrefix + property.Name + "~";
+        //    List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
+        //    string subPropertyNamePrefix = propertyNamePrefix + property.Name + "~";
             
-            childList = childList.SelectMany(i => (IEnumerable<object>)i).ToList();
+        //    childList = childList.SelectMany(i => (IEnumerable<object>)i).ToList();
 
-            return GetNormalizedDataForList(childList, subPropertyNamePrefix);
-        }
+        //    return GetNormalizedDataForList(childList, subPropertyNamePrefix);
+        //}
 
-        internal virtual List<List<object>> GetNormalizedDataForComplexProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
-        {
-            if (null == denormalizedList)
-            {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
-            }
+        //internal virtual List<List<object>> GetNormalizedDataForComplexProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
+        //{
+        //    if (null == denormalizedList)
+        //    {
+        //        throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+        //    }
 
-            if (null == property)
-            {
-                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
-            }
+        //    if (null == property)
+        //    {
+        //        throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+        //    }
 
-            List<List<object>> normalizedDataForProperty = new List<List<object>>();
-            List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
-            string subPropertyNamePrefix = propertyNamePrefix + property.Name + ".";
+        //    List<List<object>> normalizedDataForProperty = new List<List<object>>();
+        //    List<object> childList = denormalizedList.Select(t => Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
+        //    string subPropertyNamePrefix = propertyNamePrefix + property.Name + ".";
 
-            foreach (var subProperty in property.PropertyType.GetProperties())
-            {
-                normalizedDataForProperty.AddRange(GetNormalizedDataForProperty(childList, subProperty, subPropertyNamePrefix));
-            }
+        //    foreach (var subProperty in property.PropertyType.GetProperties())
+        //    {
+        //        normalizedDataForProperty.AddRange(GetNormalizedDataForProperty(childList, subProperty, subPropertyNamePrefix));
+        //    }
 
-            return normalizedDataForProperty;
-        }
+        //    return normalizedDataForProperty;
+        //}
 
-        internal virtual List<List<object>> GetNormalizedDataForSimpleProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
-        {
-            if (null == denormalizedList)
-            {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
-            }
+        //internal virtual List<List<object>> GetNormalizedDataForSimpleProperty(List<object> denormalizedList, PropertyInfo property, string propertyNamePrefix = null)
+        //{
+        //    if (null == denormalizedList)
+        //    {
+        //        throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+        //    }
 
-            if (null == property)
-            {
-                throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
-            }
+        //    if (null == property)
+        //    {
+        //        throw new ArgumentException(nameof(property) + " must not be null.", nameof(property));
+        //    }
 
-            List<object> normalizedPropertyData = new List<object>
-            {
-                string.Join(string.Empty, propertyNamePrefix, property.Name)
-            };
+        //    List<object> normalizedPropertyData = new List<object>
+        //    {
+        //        string.Join(string.Empty, propertyNamePrefix, property.Name)
+        //    };
 
-            List<object> uniquePropertyValues = GetUniquePropertyValues(denormalizedList, property);
+        //    List<object> uniquePropertyValues = GetUniquePropertyValues(denormalizedList, property);
 
-            if (uniquePropertyValues.Count < denormalizedList.Count)
-            {
-                normalizedPropertyData.AddRange(uniquePropertyValues);
-            }
+        //    if (uniquePropertyValues.Count < denormalizedList.Count)
+        //    {
+        //        normalizedPropertyData.AddRange(uniquePropertyValues);
+        //    }
 
-            return new List<List<object>>() { normalizedPropertyData };
-        }
+        //    return new List<List<object>>() { normalizedPropertyData };
+        //}
 
         internal virtual List<List<object>> CreateNormalizedData(List<object> denormalizedList, string dataName, List<object> uniqueValues)
         {
@@ -441,7 +461,6 @@ namespace Normaleezie
             }
 
             string[] propertyNameParts = propertyName.Split('~');
-            string subPropName = string.Join("~", propertyNameParts.Skip(1));
 
             object list = denormalizedItem;
 
@@ -451,14 +470,21 @@ namespace Normaleezie
                 list = propInfo.GetValue(denormalizedItem, null); 
             }
 
-            List<object> normalizedItemPropertyObject = new List<object>();
+            List<List<object>> normalizedItemsPropertyObjectList = new List<List<object>>();
 
             foreach (var val in (IEnumerable)list)
             {
-                normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, normalizedPropertyData.Skip(1).ToList()));
+                var normalizedItemPropertyObject = new List<object>();
+
+                foreach (var normalizedSubPropertyData in normalizedPropertyData.Skip(1))
+                {
+                    normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, (List<object>)normalizedSubPropertyData));
+                }
+
+                normalizedItemsPropertyObjectList.Add(normalizedItemPropertyObject);
             }
 
-            return normalizedItemPropertyObject;
+            return normalizedItemsPropertyObjectList;
         }
 
         internal virtual object GetNormalizedItemPropertyObjectForComplexProperty(object denormalizedItem,
@@ -478,18 +504,37 @@ namespace Normaleezie
             {
                 throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
             }
-            
+
             string[] propertyNameParts = propertyName.Split('.');
-            string subPropName = string.Join(".", propertyNameParts.Skip(1));
 
-            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyNameParts[0]);
-            object val = propInfo.GetValue(denormalizedItem, null);
+            object val = denormalizedItem;
 
-            List<object> subPropertyNormalizedPropertyData = new List<object>() { subPropName };
+            if (!string.IsNullOrEmpty(propertyNameParts[0]))
+            {
+                PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyNameParts[0]);
+                val = propInfo.GetValue(denormalizedItem, null);
+            }
 
-            subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+            List<object> normalizedItemPropertyObject = new List<object>();
 
-            return GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData);
+            foreach (var normalizedSubPropertyData in normalizedPropertyData.Skip(1))
+            {
+                normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, (List<object>)normalizedSubPropertyData));
+            }
+
+            return normalizedItemPropertyObject;
+
+            //string[] propertyNameParts = propertyName.Split('.');
+            //string subPropName = string.Join(".", propertyNameParts.Skip(1));
+
+            //PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyNameParts[0]);
+            //object val = propInfo.GetValue(denormalizedItem, null);
+
+            //List<object> subPropertyNormalizedPropertyData = new List<object>() { subPropName };
+
+            //subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
+
+            //return GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData);
         }
     }
 }
