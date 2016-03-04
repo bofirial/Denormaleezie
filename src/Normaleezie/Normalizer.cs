@@ -23,10 +23,10 @@ namespace Normaleezie
         internal virtual List<List<List<object>>> ConvertToNormalizedForm<T>(List<T> denormalizedList)
         {
             List<List<object>> normalizedDataList = CreateNormalizedDataList(denormalizedList);
-            //List<List<object>> normalizedStructureList = CreateNormalizedStructureList(denormalizedList.Select(i => (object)i).ToList(), normalizedDataList);
+            List<List<object>> normalizedStructureList = CreateNormalizedStructureList(denormalizedList.Select(i => (object)i).ToList(), normalizedDataList);
 
             return new List<List<List<object>>>() {
-                normalizedDataList//, normalizedStructureList
+                normalizedDataList, normalizedStructureList
             };
         }
 
@@ -451,15 +451,11 @@ namespace Normaleezie
                 list = propInfo.GetValue(denormalizedItem, null); 
             }
 
-            List<object> subPropertyNormalizedPropertyData = new List<object>() { subPropName };
-
-            subPropertyNormalizedPropertyData.AddRange(normalizedPropertyData.Skip(1));
-
             List<object> normalizedItemPropertyObject = new List<object>();
 
             foreach (var val in (IEnumerable)list)
             {
-                normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, subPropertyNormalizedPropertyData));
+                normalizedItemPropertyObject.Add(GetNormalizedItemPropertyObject(val, normalizedPropertyData.Skip(1).ToList()));
             }
 
             return normalizedItemPropertyObject;
