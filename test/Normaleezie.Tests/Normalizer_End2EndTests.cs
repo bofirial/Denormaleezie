@@ -531,14 +531,5 @@ namespace nEZ.E2E
         {
             Assert.ThrowsAny<Exception>(() => normalizer.Normalize(people));
         }
-
-        //[Fact]
-        //public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
-        //{
-        //    string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
-        //    string serializedJson = JsonConvert.SerializeObject(people);
-
-        //    Assert.True(normalizedJson.Length < serializedJson.Length);
-        //}
     }
 }
