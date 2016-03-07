@@ -9,6 +9,9 @@ using Xunit;
 using FakeItEasy.Configuration;
 using Normaleezie.Tests.Test_Classes;
 using Normaleezie;
+using Normaleezie.NormalizedData;
+using Normaleezie.NormalizedStructure;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
@@ -18,10 +21,13 @@ namespace nEZ.Unit
     public class When_Calling_Normalize_With_A_Null_Object
     {
         private readonly List<List<List<object>>> normalizedForm;
+        private readonly Normalizer normalizer;
 
         public When_Calling_Normalize_With_A_Null_Object()
         {
-            Normalizer normalizer = new Normalizer();
+            normalizer = A.Fake<Normalizer>();
+
+            A.CallTo(() => normalizer.Normalize<List<object>>(null)).CallsBaseMethod();
 
             normalizedForm = normalizer.Normalize<List<object>>(null);
         }
@@ -31,6 +37,13 @@ namespace nEZ.Unit
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.Empty(normalizedForm);
+        }
+
+        [Fact]
+        public void It_Should_NOT_Call_ConvertToNormalizedForm()
+        {
+            A.CallTo(() => normalizer.ConvertToNormalizedForm(A<List<object>>.Ignored))
+                .MustNotHaveHappened();
         }
     }
     public class When_Calling_Normalize_With_An_Empty_List
@@ -119,85 +132,90 @@ namespace nEZ.Unit
         public void It_Should_Call_ConvertToNormalizedForm()
         {
             A.CallTo(() => normalizer.ConvertToNormalizedForm(A<List<Animal>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals)
                 .MustHaveHappened(Repeated.Exactly.Once);
         }
     }
     #endregion
 
-    //    #region ConvertToNormalizedForm
+    #region ConvertToNormalizedForm
 
-    //    public class When_Calling_ConvertToNormalizedForm
-    //    {
-    //        private readonly Normalizer normalizer;
-    //        private readonly List<object> animals;
-    //        private readonly List<List<List<object>>> normalizedForm;
-    //        private readonly List<List<object>> normalizedDataList;
-    //        private readonly List<List<object>> normalizedStructureList;
+    public class When_Calling_ConvertToNormalizedForm
+    {
+        private readonly NormalizedDataManager normalizedDataManager;
+        private readonly NormalizedStructureManager normalizedStructureManager;
+        private readonly List<object> animals;
+        private readonly List<List<List<object>>> normalizedForm;
+        private readonly List<List<object>> normalizedDataList;
+        private readonly List<List<object>> normalizedStructureList;
 
-    //        public When_Calling_ConvertToNormalizedForm()
-    //        {
-    //            normalizer = A.Fake<Normalizer>();
+        public When_Calling_ConvertToNormalizedForm()
+        {
+            normalizedDataManager = A.Fake<NormalizedDataManager>();
+            normalizedStructureManager = A.Fake<NormalizedStructureManager>();
 
-    //            A.CallTo(() => normalizer.ConvertToNormalizedForm(A<List<object>>.Ignored)).CallsBaseMethod();
+            Normalizer normalizer = new Normalizer(normalizedDataManager, normalizedStructureManager);
 
-    //            normalizedDataList = new List<List<object>>()
-    //            {
-    //                new List<object>() { "Id"},
-    //                new List<object>() { "Name", "Tony", "Tania", "Talia"},
-    //                new List<object>() { "Age", 21, 1, 3},
-    //                new List<object>() { "Type", "Tiger" }
-    //            };
+            normalizedDataList = new List<List<object>>()
+                {
+                    new List<object>() { "Id" },
+                    new List<object>() { "Name", "Tony", "Tania", "Talia" },
+                    new List<object>() { "Age", 21, 1, 3 },
+                    new List<object>() { "Type", "Tiger" }
+                };
 
-    //            normalizedStructureList = new List<List<object>>()
-    //            {
-    //                new List<object>() {1, 1, 1, 1 },
-    //                new List<object>() {2, 2, 2, 1 },
-    //                new List<object>() {3, 3, 3, 1 }
-    //            };
+            normalizedStructureList = new List<List<object>>()
+                {
+                    new List<object>() {1, 1, 1, 1 },
+                    new List<object>() {2, 2, 2, 1 },
+                    new List<object>() {3, 3, 3, 1 }
+                };
 
-    //            A.CallTo(() => normalizer.CreateNormalizedDataList(A<List<object>>.Ignored)).Returns(normalizedDataList);
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataList(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Returns(normalizedDataList);
 
-    //            A.CallTo(() => normalizer.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
-    //                .Returns(normalizedStructureList);
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
+                .Returns(normalizedStructureList);
 
-    //            animals = new List<object>()
-    //            {
-    //                new Animal()
-    //                {
-    //                    AnimalId = 1,
-    //                    Type = "Tiger",
-    //                    Age = 21,
-    //                    Name = "Tony"
-    //                }
-    //            };
+            animals = new List<object>()
+                {
+                    new Animal()
+                    {
+                        AnimalId = 1,
+                        Type = "Tiger",
+                        Age = 21,
+                        Name = "Tony"
+                    }
+                };
 
-    //            normalizedForm = normalizer.ConvertToNormalizedForm(animals);
-    //        }
+            normalizedForm = normalizer.ConvertToNormalizedForm(animals);
+        }
 
-    //        [Fact]
-    //        public void It_Should_Return_The_NormalizedForm()
-    //        {
-    //            Assert.Equal(normalizedDataList, normalizedForm[0]);
-    //            Assert.Equal(normalizedStructureList, normalizedForm[1]);
-    //        }
+        [Fact]
+        public void It_Should_Return_The_NormalizedForm()
+        {
+            Assert.Equal(normalizedDataList, normalizedForm[0]);
+            Assert.Equal(normalizedStructureList, normalizedForm[1]);
+        }
 
-    //        [Fact]
-    //        public void It_Should_Call_CreateNormalizedDataList()
-    //        {
-    //            A.CallTo(() => normalizer.CreateNormalizedDataList(A<List<object>>.Ignored))
-    //                .WhenArgumentsMatch(args => args[0] == animals)
-    //                .MustHaveHappened(Repeated.Exactly.Once);
-    //        }
+        [Fact]
+        public void It_Should_Call_CreateNormalizedDataList()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataList(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals)
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
 
-    //        [Fact]
-    //        public void It_Should_Call_CreateNormalizedStructureList()
-    //        {
-    //            A.CallTo(() => normalizer.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
-    //                .WhenArgumentsMatch(args => args[0] == animals && args[1] == normalizedDataList)
-    //                .MustHaveHappened(Repeated.Exactly.Once);
-    //        }
-    //    }
-    //    #endregion
+        [Fact]
+        public void It_Should_Call_CreateNormalizedStructureList()
+        {
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals && args[1] == normalizedDataList)
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
+    }
+
+    #endregion
 
     //    #region CreateNormalizedDataList
 
@@ -740,77 +758,6 @@ namespace nEZ.Unit
 
     //    #endregion
 
-    //    #region IsSimpleType
-    //    public class When_Calling_IsSimpleType_With_A_Null_PropertyInfo
-    //    {
-    //        private readonly Normalizer normalizer;
-
-    //        public When_Calling_IsSimpleType_With_A_Null_PropertyInfo()
-    //        {
-    //            normalizer = new Normalizer();
-    //        }
-
-    //        [Fact]
-    //        public void It_Should_Throw_An_Exception()
-    //        {
-    //            Assert.Throws(typeof(ArgumentException), () => normalizer.IsSimpleType(null));
-    //        }
-    //    }
-
-    //    public class When_Calling_IsSimpleType_With_An_Int
-    //    {
-    //        private readonly bool isSimpleType;
-
-    //        public When_Calling_IsSimpleType_With_An_Int()
-    //        {
-    //            Normalizer normalizer = new Normalizer();
-
-    //            isSimpleType = normalizer.IsSimpleType(typeof(string));
-    //        }
-
-    //        [Fact]
-    //        public void It_Should_Return_True()
-    //        {
-    //            Assert.True(isSimpleType);
-    //        }
-    //    }
-
-    //    public class When_Calling_IsSimpleType_With_A_DateTime
-    //    {
-    //        private readonly bool isSimpleType;
-
-    //        public When_Calling_IsSimpleType_With_A_DateTime()
-    //        {
-    //            Normalizer normalizer = new Normalizer();
-
-    //            isSimpleType = normalizer.IsSimpleType(typeof(DateTime));
-    //        }
-
-    //        [Fact]
-    //        public void It_Should_Return_True()
-    //        {
-    //            Assert.True(isSimpleType);
-    //        }
-    //    }
-
-    //    public class When_Calling_IsSimpleType_With_An_Object_Property
-    //    {
-    //        private readonly bool isSimpleType;
-
-    //        public When_Calling_IsSimpleType_With_An_Object_Property()
-    //        {
-    //            Normalizer normalizer = new Normalizer();
-
-    //            isSimpleType = normalizer.IsSimpleType(typeof(Book));
-    //        }
-
-    //        [Fact]
-    //        public void It_Should_Return_False()
-    //        {
-    //            Assert.False(isSimpleType);
-    //        }
-    //    }
-    //    #endregion
 
     //    #region GetUniquePropertyValues
     //    public class When_Calling_GetUniquePropertyValues_With_A_Null_Object_List
