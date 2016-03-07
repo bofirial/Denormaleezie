@@ -6,7 +6,27 @@ using System.Threading.Tasks;
 
 namespace Normaleezie.Tests.NormalizedData
 {
-    class NormalizedDataManager_UnitTests
-    {
-    }
+    #region CreateNormalizedData
+
+    #endregion
+
+    #region CreateNormalizedDataForListOfSimpleType
+
+    #endregion
+
+    #region CreateNormalizedDataForListOfComplexType
+
+    #endregion
+
+    #region CreateNormalizedDataForListOfIEnumerableType
+
+    #endregion
+
+    #region CallCreateNormalizedDataGenerically
+
+    #endregion
+
+    #region CheckForCircularReferences
+
+    #endregion
 }

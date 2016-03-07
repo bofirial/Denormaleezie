@@ -136,4 +136,61 @@ namespace nEZ.Unit.Helpers
     }
     #endregion
 
+    #region IsIEnumerableType
+    public class When_Calling_IsIEnumerableType_With_A_Null_Type
+    {
+        private readonly ReflectionHelper reflectionHelper;
+
+        public When_Calling_IsIEnumerableType_With_A_Null_Type()
+        {
+            reflectionHelper = new ReflectionHelper();
+        }
+
+        [Fact]
+        public void It_Should_Throw_An_Exception()
+        {
+            Assert.Throws(typeof(ArgumentException), () => reflectionHelper.IsIEnumerableType(null));
+        }
+    }
+
+    public class When_Calling_IsIEnumerableType
+    {
+        private readonly ReflectionHelper reflectionHelper;
+
+        public When_Calling_IsIEnumerableType()
+        {
+            reflectionHelper = new ReflectionHelper();
+        }
+
+        [Theory]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(List<Book>))]
+        [InlineData(typeof(Array))]
+        public void With_An_IEnumerable_Type_It_Should_Return_True(Type type)
+        {
+            bool isSimpleType = reflectionHelper.IsIEnumerableType(type);
+
+            Assert.True(isSimpleType);
+        }
+
+        [Theory]
+        [InlineData(typeof(Book))]
+        [InlineData(typeof(Tuple<string>))]
+        [InlineData(typeof(object))]
+        public void With_A_Type_That_Is_Not_IEnumerable_Type_It_Should_Return_False(Type type)
+        {
+            bool isSimpleType = reflectionHelper.IsIEnumerableType(type);
+
+            Assert.False(isSimpleType);
+        }
+
+        [Fact]
+        public void With_The_String_Type_It_Should_Return_False()
+        {
+            bool isSimpleType = reflectionHelper.IsIEnumerableType(typeof(string));
+
+            Assert.False(isSimpleType);
+        }
+    }
+    #endregion
 }
