@@ -27,5 +27,15 @@ namespace Normaleezie.Helpers
 
             return Type.GetTypeCode(type) != TypeCode.Object;
         }
+
+        internal virtual bool IsIEnumerableType(Type type)
+        {
+            if (null == type)
+            {
+                throw new ArgumentException(nameof(type) + " must not be null.", nameof(type));
+            }
+
+            return null != type.GetInterface("IEnumerable") && type != typeof (string);
+        }
     }
 }

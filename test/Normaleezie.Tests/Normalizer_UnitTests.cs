@@ -171,7 +171,7 @@ namespace nEZ.Unit
                     new List<object>() {3, 3, 3, 1 }
                 };
 
-            A.CallTo(() => normalizedDataManager.CreateNormalizedDataList(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
                 .Returns(normalizedDataList);
 
             A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
@@ -201,8 +201,8 @@ namespace nEZ.Unit
         [Fact]
         public void It_Should_Call_CreateNormalizedDataList()
         {
-            A.CallTo(() => normalizedDataManager.CreateNormalizedDataList(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
-                .WhenArgumentsMatch(args => args[0] == animals)
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == animals && args[1] == null && (string) args[2] == string.Empty)
                 .MustHaveHappened(Repeated.Exactly.Once);
         }
 

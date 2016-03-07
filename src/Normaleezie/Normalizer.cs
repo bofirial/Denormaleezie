@@ -35,7 +35,7 @@ namespace Normaleezie
 
         internal virtual List<List<List<object>>> ConvertToNormalizedForm<T>(List<T> denormalizedList)
         {
-            List<List<object>> normalizedDataList = _normalizedDataManager.CreateNormalizedDataList(denormalizedList);
+            List<List<object>> normalizedDataList = _normalizedDataManager.CreateNormalizedData(denormalizedList);
             List<List<object>> normalizedStructureList = _normalizedStructureManager.CreateNormalizedStructureList(denormalizedList, normalizedDataList);
 
             return new List<List<List<object>>>() {

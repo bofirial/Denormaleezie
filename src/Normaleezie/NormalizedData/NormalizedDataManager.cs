@@ -12,14 +12,14 @@ namespace Normaleezie.NormalizedData
     {
         private readonly ReflectionHelper _reflectionHelper;
 
-        public NormalizedDataManager() : this(new ReflectionHelper()) {}
+        internal NormalizedDataManager() : this(new ReflectionHelper()) {}
 
-        public NormalizedDataManager(ReflectionHelper reflectionHelper)
+        internal NormalizedDataManager(ReflectionHelper reflectionHelper)
         {
             this._reflectionHelper = reflectionHelper;
         }
 
-        internal virtual List<List<object>> CreateNormalizedDataList<T>(List<T> denormalizedList, List<string> previousDataNames = null, string dataName = "")
+        internal virtual List<List<object>> CreateNormalizedData<T>(List<T> denormalizedList, List<string> previousDataNames = null, string dataName = "")
         {
             if (null == denormalizedList)
             {
@@ -31,6 +31,96 @@ namespace Normaleezie.NormalizedData
                 return new List<List<object>>() { new List<object>() { dataName } };
             }
 
+            CheckForCircularReferences(ref previousDataNames, dataName);
+
+            if (_reflectionHelper.IsIEnumerableType(typeof(T)))
+            {
+                return CreateNormalizedDataForListOfIEnumerableType(denormalizedList, previousDataNames, dataName);
+            }
+
+            if (!_reflectionHelper.IsSimpleType(typeof(T)))
+            {
+                return CreateNormalizedDataForListOfComplexType(denormalizedList, previousDataNames, dataName);
+            }
+
+            return CreateNormalizedDataForListOfSimpleType(denormalizedList, dataName);
+        }
+
+        internal virtual List<List<object>> CreateNormalizedDataForListOfSimpleType<T>(List<T> denormalizedList, string dataName)
+        {
+            if (null == denormalizedList)
+            {
+                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+            }
+
+            List<object> normalizedData = new List<object>() {dataName};
+            List<object> uniqueValues = denormalizedList.Select(i => (object) i).Distinct().ToList();
+
+            if (uniqueValues.Count < denormalizedList.Count)
+            {
+                normalizedData.AddRange(uniqueValues);
+            }
+
+            return new List<List<object>>() {normalizedData};
+        }
+
+        internal virtual List<List<object>> CreateNormalizedDataForListOfComplexType<T>(List<T> denormalizedList, List<string> previousDataNames, string dataName)
+        {
+            List<List<object>> normalizedDataByProperty = new List<List<object>>();
+
+            List<PropertyInfo> tProperties = typeof (T).GetProperties().ToList();
+
+            tProperties.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+
+            foreach (PropertyInfo property in tProperties)
+            {
+                List<object> propertyValues = denormalizedList.Select(t =>
+                    Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
+                
+                normalizedDataByProperty.AddRange(CallCreateNormalizedDataGenerically(propertyValues, previousDataNames, property.Name, property.PropertyType));
+            }
+
+            if (string.IsNullOrEmpty(dataName))
+            {
+                return normalizedDataByProperty;
+            }
+
+            List<object> normalizedData = new List<object>() {dataName + "."};
+
+            normalizedData.AddRange(normalizedDataByProperty);
+
+            return new List<List<object>>() {normalizedData};
+        }
+
+        internal virtual List<List<object>> CreateNormalizedDataForListOfIEnumerableType<T>(List<T> denormalizedList, List<string> previousDataNames, string dataName)
+        {
+            List<object> listValues = denormalizedList.SelectMany(i => (IEnumerable<object>) i).ToList();
+
+            List<object> normalizedDataForList = new List<object>() {dataName + "~"};
+
+            normalizedDataForList.AddRange(CallCreateNormalizedDataGenerically(listValues, previousDataNames, null, typeof(T).GetGenericArguments().First()));
+
+            return new List<List<object>>() {normalizedDataForList};
+        }
+
+
+        internal virtual List<List<object>> CallCreateNormalizedDataGenerically(List<object> denormalizedList, List<string> previousDataNames, string dataName, Type type)
+        {
+            Type reflectionHelperType = _reflectionHelper.GetType();
+            MethodInfo typelessConvertListMethod = reflectionHelperType.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo genericConvertListMethod = typelessConvertListMethod.MakeGenericMethod(type);
+
+            var typedDenormalizedList = genericConvertListMethod.Invoke(_reflectionHelper, new object[] { denormalizedList });
+
+            Type normalizedDataManagerType = this.GetType();
+            MethodInfo typelessCreateNormalizedData = normalizedDataManagerType.GetMethod("CreateNormalizedData", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo genericCreateNormalizedData = typelessCreateNormalizedData.MakeGenericMethod(type);
+
+            return (List<List<object>>)genericCreateNormalizedData.Invoke(this, new[] { typedDenormalizedList, previousDataNames, dataName });
+        }
+
+        internal virtual void CheckForCircularReferences(ref List<string> previousDataNames, string dataName)
+        {
             if (previousDataNames == null)
             {
                 previousDataNames = new List<string>();
@@ -38,101 +128,16 @@ namespace Normaleezie.NormalizedData
 
             previousDataNames.Add(dataName);
 
-            var result = from id in previousDataNames
-                         group id by id into g
-                         orderby g.Count() descending
-                         select new { Id = g.Key, Count = g.Count() };
+            int largestNumberOfCallsToCreateNormalizeData = previousDataNames
+                .GroupBy(previousDataName => previousDataName)
+                .OrderByDescending(grouping => grouping.Count())
+                .Select(grouping => grouping.Count())
+                .First();
 
-            if (result.ToList()[0].Count > 20)
+            if (largestNumberOfCallsToCreateNormalizeData > 20)
             {
                 throw new Exception("Circular Reference Detected in object.");
             }
-
-            if (null != typeof(T).GetInterface("IEnumerable") && typeof(T) != typeof(string))
-            {
-                //return (List<List<object>>)this.GetType()
-                //    .GetMethod("GetNormalizedDataForList")
-                //    .MakeGenericMethod(typeof (T).GetGenericArguments().First())
-                //    .Invoke(this, BindingFlags.NonPublic | BindingFlags.Instance, null, 
-                //    new object[] {denormalizedList.SelectMany(i => (IEnumerable<object>) i).ToList(), dataName + "~"}, null);
-
-                var propValues = denormalizedList.SelectMany(i => (IEnumerable<object>)i).ToList();
-
-
-                var thisType2 = _reflectionHelper.GetType();
-                var method2 = thisType2.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
-                var genMeth2 = method2.MakeGenericMethod(typeof(T).GetGenericArguments().First());
-
-
-                var typedPropValues = genMeth2.Invoke(_reflectionHelper, new object[] { propValues });
-
-                var thisType = this.GetType();
-                var method = thisType.GetMethod("CreateNormalizedDataList", BindingFlags.NonPublic | BindingFlags.Instance);
-                var genMeth = method.MakeGenericMethod(typeof(T).GetGenericArguments().First());
-
-                var normalizedDataForList = new List<object>() { dataName + "~" };
-
-                normalizedDataForList.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, previousDataNames, null })));
-
-                return new List<List<object>>() { normalizedDataForList };
-
-                //return (List<List<object>>) genMeth.Invoke(this, new object[] { typedPropValues, dataName + "~"});
-
-                //return GetNormalizedDataForList(denormalizedList.SelectMany(i => (IEnumerable<dynamic>)i).ToList(), dataName + "~");
-            }
-
-            if (!_reflectionHelper.IsSimpleType(typeof(T)))
-            {
-                List<List<object>> normalizedDataForProperties = new List<List<object>>();
-
-                var props = typeof(T).GetProperties().ToList();
-
-                props.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
-
-                foreach (var subProperty in props)
-                {
-                    var propValues = denormalizedList.Select(t =>
-                        Convert.ChangeType(subProperty.GetValue(t, null), subProperty.PropertyType)).ToList();
-
-
-                    var thisType2 = _reflectionHelper.GetType();
-                    var method2 = thisType2.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var genMeth2 = method2.MakeGenericMethod(subProperty.PropertyType);
-
-
-                    var typedPropValues = genMeth2.Invoke(_reflectionHelper, new object[] { propValues });
-
-                    var thisType = this.GetType();
-                    var method = thisType.GetMethod("CreateNormalizedDataList", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var genMeth = method.MakeGenericMethod(subProperty.PropertyType);
-
-                    normalizedDataForProperties.AddRange(((List<List<object>>)genMeth.Invoke(this, new object[] { typedPropValues, previousDataNames, subProperty.Name })));
-
-                    //normalizedDataForList.AddRange(
-                    //    GetNormalizedDataForList(denormalizedList.Select(t => (dynamic)Convert.ChangeType(subProperty.GetValue(t, null), subProperty.PropertyType)).ToList(),
-                    //    dataNameForProperty));
-                }
-
-                if (string.IsNullOrEmpty(dataName))
-                {
-                    return normalizedDataForProperties;
-                }
-                List<object> normalizedDataForList = new List<object>() { dataName + "." };
-
-                normalizedDataForList.AddRange(normalizedDataForProperties);
-
-                return new List<List<object>>() { normalizedDataForList };
-            }
-
-            List<object> normalizedData = new List<object>() { dataName };
-            List<object> uniqueValues = denormalizedList.Select(i => (object)i).Distinct().ToList();
-
-            if (uniqueValues.Count < denormalizedList.Count)
-            {
-                normalizedData.AddRange(uniqueValues);
-            }
-
-            return new List<List<object>>() { normalizedData };
         }
     }
 }
