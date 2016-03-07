@@ -11,33 +11,41 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace nEZ.Unit.Helpers
+namespace Unit.Helpers
 {
     #region ConvertList
-    public class When_Calling_ConvertList_With_A_Null_Object
+
+    public class ConvertList
     {
         private readonly ReflectionHelper reflectionHelper;
 
-        public When_Calling_ConvertList_With_A_Null_Object()
+        public ConvertList()
         {
             reflectionHelper = new ReflectionHelper();
         }
 
         [Fact]
-        public void It_Should_Throw_An_ArgumentException()
+        public void Should_Throw_An_ArgumentException_When_The_List_Is_Null()
         {
             Assert.Throws<ArgumentException>(() => reflectionHelper.ConvertList<object>(null));
         }
-    }
-
-    public class When_Calling_ConvertList
-    {
-        private readonly List<Animal> returnedAnimals;
-
-        public When_Calling_ConvertList()
+        
+        [Fact]
+        public void Should_Throw_An_InvalidCastException_When_Every_Object_In_The_List_Does_Not_Match_The_Type()
         {
-            ReflectionHelper reflectionHelper = new ReflectionHelper();
+            List<object> objects = new List<object>()
+            {
+                new Animal() {Name = "Reggie"},
+                new Person() {Name = "Ronnie"},
+                new Book() {Title = "Ralphie"}
+            };
 
+            Assert.Throws<InvalidCastException>(() => reflectionHelper.ConvertList<Animal>(objects));
+        }
+
+        [Fact]
+        public void Should_Return_A_List_Of_The_Generic_Type()
+        {
             List<object> animals = new List<object>()
             {
                 new Animal() {Name = "Reggie"},
@@ -45,68 +53,30 @@ namespace nEZ.Unit.Helpers
                 new Animal() {Name = "Ralphie"}
             };
 
-            returnedAnimals = reflectionHelper.ConvertList<Animal>(animals);
-        }
+            List<Animal> returnedAnimals = reflectionHelper.ConvertList<Animal>(animals);
 
-        [Fact]
-        public void It_Should_Return_A_List_Of_The_Generic_Type()
-        {
             Assert.IsType(typeof(List<Animal>), returnedAnimals);
-        }
-    }
-
-    public class When_Calling_ConvertList_With_A_Mixed_List
-    {
-        private readonly ReflectionHelper reflectionHelper;
-        private readonly List<object> objects;
-
-        public When_Calling_ConvertList_With_A_Mixed_List()
-        {
-            reflectionHelper = new ReflectionHelper();
-
-            objects = new List<object>()
-            {
-                new Animal() {Name = "Reggie"},
-                new Person() {Name = "Ronnie"},
-                new Book() {Title = "Ralphie"}
-            };
-        }
-
-        [Fact]
-        public void It_Should_Throw_An_InvalidCastException()
-        {
-            Assert.Throws<InvalidCastException>(() => reflectionHelper.ConvertList<Animal>(objects));
         }
     }
 
     #endregion
 
     #region IsSimpleType
-    public class When_Calling_IsSimpleType_With_A_Null_Type
+
+    public class IsSimpleType
     {
         private readonly ReflectionHelper reflectionHelper;
-
-        public When_Calling_IsSimpleType_With_A_Null_Type()
+        public IsSimpleType()
         {
             reflectionHelper = new ReflectionHelper();
         }
 
         [Fact]
-        public void It_Should_Throw_An_Exception()
+        public void Should_Throw_An_Exception_When_The_Type_Is_Null()
         {
             Assert.Throws(typeof(ArgumentException), () => reflectionHelper.IsSimpleType(null));
         }
-    }
-
-    public class When_Calling_IsSimpleType
-    {
-        private readonly ReflectionHelper reflectionHelper;
-
-        public When_Calling_IsSimpleType()
-        {
-            reflectionHelper = new ReflectionHelper();
-        }
-
+        
         [Theory]
         [InlineData(typeof(int))]
         [InlineData(typeof(string))]
@@ -115,7 +85,7 @@ namespace nEZ.Unit.Helpers
         [InlineData(typeof(byte))]
         [InlineData(typeof(char))]
         [InlineData(typeof(decimal))]
-        public void With_A_Simple_Type_It_Should_Return_True(Type type)
+        public void Should_Return_True_When_The_Type_Is_A_Simple_Type(Type type)
         {
             bool isSimpleType = reflectionHelper.IsSimpleType(type);
 
@@ -127,46 +97,38 @@ namespace nEZ.Unit.Helpers
         [InlineData(typeof(List<string>))]
         [InlineData(typeof(Tuple<string>))]
         [InlineData(typeof(object))]
-        public void With_A_Complex_Type_It_Should_Return_False(Type type)
+        public void Should_Return_False_When_The_Type_Is_A_Complex_Type(Type type)
         {
             bool isSimpleType = reflectionHelper.IsSimpleType(type);
-            
+
             Assert.False(isSimpleType);
         }
     }
+
     #endregion
 
     #region IsIEnumerableType
-    public class When_Calling_IsIEnumerableType_With_A_Null_Type
+
+    public class IsIEnumerableType
     {
         private readonly ReflectionHelper reflectionHelper;
 
-        public When_Calling_IsIEnumerableType_With_A_Null_Type()
+        public IsIEnumerableType()
         {
             reflectionHelper = new ReflectionHelper();
         }
 
         [Fact]
-        public void It_Should_Throw_An_Exception()
+        public void Should_Throw_An_Exception_When_The_Type_Is_Null()
         {
             Assert.Throws(typeof(ArgumentException), () => reflectionHelper.IsIEnumerableType(null));
         }
-    }
-
-    public class When_Calling_IsIEnumerableType
-    {
-        private readonly ReflectionHelper reflectionHelper;
-
-        public When_Calling_IsIEnumerableType()
-        {
-            reflectionHelper = new ReflectionHelper();
-        }
-
+        
         [Theory]
         [InlineData(typeof(List<string>))]
         [InlineData(typeof(List<Book>))]
         [InlineData(typeof(Array))]
-        public void With_An_IEnumerable_Type_It_Should_Return_True(Type type)
+        public void Should_Return_True_When_The_Type_Is_An_IEnumerable(Type type)
         {
             bool isSimpleType = reflectionHelper.IsIEnumerableType(type);
 
@@ -177,7 +139,7 @@ namespace nEZ.Unit.Helpers
         [InlineData(typeof(Book))]
         [InlineData(typeof(Tuple<string>))]
         [InlineData(typeof(object))]
-        public void With_A_Type_That_Is_Not_IEnumerable_Type_It_Should_Return_False(Type type)
+        public void Should_Return_False_When_The_Type_Is_Not_IEnumerable(Type type)
         {
             bool isSimpleType = reflectionHelper.IsIEnumerableType(type);
 
@@ -185,7 +147,7 @@ namespace nEZ.Unit.Helpers
         }
 
         [Fact]
-        public void With_The_String_Type_It_Should_Return_False()
+        public void Should_Return_False_When_The_Type_Is_String()
         {
             bool isSimpleType = reflectionHelper.IsIEnumerableType(typeof(string));
 

@@ -13,9 +13,21 @@ using Xunit.Extensions;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace Normaleezie.Tests.NormalizedData
+namespace Unit.NormalizedData
 {
     #region CreateNormalizedData
+
+    public class CreateNormalizedData
+    {
+        private readonly NormalizedDataManager normalizedDataManager;
+
+        public CreateNormalizedData()
+        {
+            normalizedDataManager = new NormalizedDataManager();
+
+        }
+
+    }
 
     #endregion
 
@@ -36,15 +48,14 @@ namespace Normaleezie.Tests.NormalizedData
     #endregion
 
     #region CheckForCircularReferences
-    
-    public class When_Calling_CheckForCircularReferences
+
+    public class CheckForCircularReferences
     {
         private readonly NormalizedDataManager normalizedDataManager;
 
-        public When_Calling_CheckForCircularReferences()
+        public CheckForCircularReferences()
         {
             normalizedDataManager = new NormalizedDataManager();
-            
         }
 
         public static IEnumerable<object[]> ValidScenarioArguments = new[]
@@ -86,12 +97,20 @@ namespace Normaleezie.Tests.NormalizedData
                 "Test28",
                 "Test29",
                 "Test30"
+            }, "Test" },
+            new object[] {new List<string>
+            {
+                "Test",
+                "Test",
+                "Test",
+                "Test",
+                "Test"
             }, "Test" }
         };
 
         [Theory]
         [MemberData("ValidScenarioArguments")]
-        public void It_Should_NOT_Throw_An_Exception(List<string> previousDataNames, string dataName )
+        public void Should_NOT_Throw_An_Exception_When_There_Is_No_Circular_Reference(List<string> previousDataNames, string dataName )
         {
             normalizedDataManager.CheckForCircularReferences(ref previousDataNames, dataName);
 
@@ -127,7 +146,7 @@ namespace Normaleezie.Tests.NormalizedData
 
         [Theory]
         [MemberData("InvalidScenarioArguments")]
-        public void It_Should_Throw_An_Exception(List<string> previousDataNames, string dataName)
+        public void Should_Throw_An_Exception_When_Parameters_Indicate_There_Is_A_Circular_Reference(List<string> previousDataNames, string dataName)
         {
             Exception exception = Assert.Throws<Exception>(() => normalizedDataManager.CheckForCircularReferences(ref previousDataNames, dataName));
 
