@@ -67,7 +67,7 @@ namespace Unit
                 {
                     new List<object>()
                     {
-                        "denormaleezie"
+                        "normaleezie"
                     }
                 }
             };

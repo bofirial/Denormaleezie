@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FakeItEasy;
+using Normaleezie.Helpers;
 using Normaleezie.NormalizedData;
 using Normaleezie.NormalizedStructure;
 using Normaleezie.Tests.Test_Classes;
@@ -20,13 +21,140 @@ namespace Unit.NormalizedData
     public class CreateNormalizedData
     {
         private readonly NormalizedDataManager normalizedDataManager;
+        private readonly ReflectionHelper reflectionHelper;
 
         public CreateNormalizedData()
         {
-            normalizedDataManager = new NormalizedDataManager();
+            reflectionHelper = A.Fake<ReflectionHelper>();
+            normalizedDataManager = A.Fake<NormalizedDataManager>(x => x.WithArgumentsForConstructor(() => new NormalizedDataManager(reflectionHelper)));
 
         }
 
+        [Fact]
+        public void Should_Throw_An_ArgumentNullException_When_The_List_Is_Null()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            Assert.Throws<ArgumentNullException>(() => normalizedDataManager.CreateNormalizedData<object>(null));
+        }
+
+        [Fact]
+        public void Should_Return_Normalized_Data_Containing_Only_The_DataName_When_The_List_Is_Empty()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedData(new List<object>());
+
+            Assert.Equal(new List<object>() { string.Empty }, normalizedData[0]);
+        }
+
+        [Fact]
+        public void Should_Check_For_Circular_References()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedData(new List<object>() {"test"});
+
+            List<string> ignoredStringList = A<List<string>>.Ignored;
+
+            A.CallTo(() => normalizedDataManager.CheckForCircularReferences(ref ignoredStringList, A<string>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Should_Call_CreateNormalizedDataForListOfIEnumerableType_When_IsIEnumerableType_Returns_True()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .Returns(true);
+
+            List<List<object>> createNormalizedDataForListOfIEnumerableTypeReturn = new List<List<object>>() {new List<object>() {"Return Data"}};
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfIEnumerableType(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Returns(createNormalizedDataForListOfIEnumerableTypeReturn);
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedData(new List<object>() { "test" });
+            
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type) args[0] == typeof(object))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfIEnumerableType(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(createNormalizedDataForListOfIEnumerableTypeReturn, normalizedData);
+        }
+
+        [Fact]
+        public void Should_Call_CreateNormalizedDataForListOfComplexType_When_IsSimpleType_Returns_False()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .Returns(false);
+
+            A.CallTo(() => reflectionHelper.IsSimpleType(A<Type>.Ignored))
+                .Returns(false);
+
+            List<List<object>> createNormalizedDataForListOfComplexTypeReturn = new List<List<object>>() { new List<object>() { "Return Data" } };
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfComplexType(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Returns(new List<List<object>>() { new List<object>() { "Return Data" } });
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedData(new List<object>() { "test" });
+
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type)args[0] == typeof(object))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => reflectionHelper.IsSimpleType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type)args[0] == typeof(object))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfComplexType(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(createNormalizedDataForListOfComplexTypeReturn, normalizedData);
+        }
+
+        [Fact]
+        public void Should_Call_CreateNormalizedDataForListOfSimpleType_When_IsSimpleType_Returns_True()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .Returns(false);
+
+            A.CallTo(() => reflectionHelper.IsSimpleType(A<Type>.Ignored))
+                .Returns(true);
+
+            List<List<object>> createNormalizedDataForListOfSimpleTypeReturn = new List<List<object>>() { new List<object>() { "Return Data" } };
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfSimpleType(A<List<object>>.Ignored, A<string>.Ignored))
+                .Returns(new List<List<object>>() { new List<object>() { "Return Data" } });
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedData(new List<object>() { "test" });
+
+            A.CallTo(() => reflectionHelper.IsIEnumerableType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type)args[0] == typeof(object))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => reflectionHelper.IsSimpleType(A<Type>.Ignored))
+                .WhenArgumentsMatch(args => (Type)args[0] == typeof(object))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfSimpleType(A<List<object>>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(createNormalizedDataForListOfSimpleTypeReturn, normalizedData);
+        }
     }
 
     #endregion
@@ -44,6 +172,95 @@ namespace Unit.NormalizedData
     #endregion
 
     #region CallCreateNormalizedDataGenerically
+    
+    public class CallCreateNormalizedDataGenerically
+    {
+        private readonly NormalizedDataManager normalizedDataManager;
+        private readonly ReflectionHelper reflectionHelper;
+
+        public CallCreateNormalizedDataGenerically()
+        {
+            reflectionHelper = A.Fake<ReflectionHelper>();
+            normalizedDataManager = A.Fake<NormalizedDataManager>(x => x.WithArgumentsForConstructor(() => new NormalizedDataManager(reflectionHelper)));
+        }
+
+        [Fact]
+        public void Should_Throw_An_ArgumentNullException_When_The_Type_Is_Null()
+        {
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .CallsBaseMethod();
+
+            Assert.Throws<ArgumentNullException>(() => normalizedDataManager.CallCreateNormalizedDataGenerically(new List<object>(), new List<string>(), string.Empty, null));
+        }
+
+        [Fact]
+        public void Should_Call_ConvertList_And_CreateNormalizedData_With_The_Correct_Generic_Type__String()
+        {
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .CallsBaseMethod();
+
+            List<string> convertListReturn = new List<string>();
+
+            A.CallTo(() => reflectionHelper.ConvertList<string>(A<List<object>>.Ignored))
+                .Returns(convertListReturn);
+
+            List<List<object>> createNormalizedDataReturn = new List<List<object>>();
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<string>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Returns(createNormalizedDataReturn);
+
+            List<object> denormalizedData = new List<object>() {};
+            List<string> previousDataNames = new List<string>();
+            string dataName = "soliloquy";
+            Type type = typeof (string);
+
+            List<List<object>> normalizedData = normalizedDataManager.CallCreateNormalizedDataGenerically(denormalizedData, previousDataNames, dataName, type);
+
+            A.CallTo(() => reflectionHelper.ConvertList<string>(A<List<object>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == denormalizedData)
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<string>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == convertListReturn && args[1] == previousDataNames && (string) args[2] == dataName)
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(createNormalizedDataReturn, normalizedData);
+        }
+
+        [Fact]
+        public void Should_Call_ConvertList_And_CreateNormalizedData_With_The_Correct_Generic_Type__Animal()
+        {
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .CallsBaseMethod();
+
+            List<Animal> convertListReturn = new List<Animal>();
+
+            A.CallTo(() => reflectionHelper.ConvertList<Animal>(A<List<object>>.Ignored))
+                .Returns(convertListReturn);
+
+            List<List<object>> createNormalizedDataReturn = new List<List<object>>();
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<Animal>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Returns(createNormalizedDataReturn);
+
+            List<object> denormalizedData = new List<object>() { };
+            List<string> previousDataNames = new List<string>();
+            string dataName = "soliloquy";
+            Type type = typeof(Animal);
+
+            List<List<object>> normalizedData = normalizedDataManager.CallCreateNormalizedDataGenerically(denormalizedData, previousDataNames, dataName, type);
+
+            A.CallTo(() => reflectionHelper.ConvertList<Animal>(A<List<object>>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == denormalizedData)
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<Animal>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == convertListReturn && args[1] == previousDataNames && (string)args[2] == dataName)
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(createNormalizedDataReturn, normalizedData);
+        }
+    }
 
     #endregion
 

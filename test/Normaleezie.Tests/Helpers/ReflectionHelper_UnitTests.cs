@@ -25,9 +25,9 @@ namespace Unit.Helpers
         }
 
         [Fact]
-        public void Should_Throw_An_ArgumentException_When_The_List_Is_Null()
+        public void Should_Throw_An_ArgumentNullException_When_The_List_Is_Null()
         {
-            Assert.Throws<ArgumentException>(() => reflectionHelper.ConvertList<object>(null));
+            Assert.Throws<ArgumentNullException>(() => reflectionHelper.ConvertList<object>(null));
         }
         
         [Fact]
@@ -74,7 +74,7 @@ namespace Unit.Helpers
         [Fact]
         public void Should_Throw_An_Exception_When_The_Type_Is_Null()
         {
-            Assert.Throws(typeof(ArgumentException), () => reflectionHelper.IsSimpleType(null));
+            Assert.Throws(typeof(ArgumentNullException), () => reflectionHelper.IsSimpleType(null));
         }
         
         [Theory]
@@ -121,7 +121,7 @@ namespace Unit.Helpers
         [Fact]
         public void Should_Throw_An_Exception_When_The_Type_Is_Null()
         {
-            Assert.Throws(typeof(ArgumentException), () => reflectionHelper.IsIEnumerableType(null));
+            Assert.Throws(typeof(ArgumentNullException), () => reflectionHelper.IsIEnumerableType(null));
         }
         
         [Theory]
