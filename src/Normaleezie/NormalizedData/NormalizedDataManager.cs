@@ -66,6 +66,11 @@ namespace Normaleezie.NormalizedData
 
         internal virtual List<List<object>> CreateNormalizedDataForListOfComplexType<T>(List<T> denormalizedList, List<string> previousDataNames, string dataName)
         {
+            if (null == denormalizedList)
+            {
+                throw new ArgumentNullException(nameof(denormalizedList));
+            }
+
             List<List<object>> normalizedDataByProperty = new List<List<object>>();
 
             List<PropertyInfo> tProperties = typeof (T).GetProperties().ToList();
@@ -80,6 +85,11 @@ namespace Normaleezie.NormalizedData
                 normalizedDataByProperty.AddRange(CallCreateNormalizedDataGenerically(propertyValues, previousDataNames, property.Name, property.PropertyType));
             }
 
+            return FormatNormalizedDataForListOfComplexType(dataName, normalizedDataByProperty);
+        }
+
+        internal virtual List<List<object>> FormatNormalizedDataForListOfComplexType(string dataName, List<List<object>> normalizedDataByProperty)
+        {
             if (string.IsNullOrEmpty(dataName))
             {
                 return normalizedDataByProperty;

@@ -14,7 +14,7 @@ using Xunit.Extensions;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace Unit.NormalizedData
+namespace Unit_NormalizedDataManager
 {
     #region CreateNormalizedData
 
@@ -160,10 +160,118 @@ namespace Unit.NormalizedData
     #endregion
 
     #region CreateNormalizedDataForListOfSimpleType
+    
+    public class CreateNormalizedDataForListOfSimpleType
+    {
+        private readonly NormalizedDataManager normalizedDataManager;
+
+        public CreateNormalizedDataForListOfSimpleType()
+        {
+            normalizedDataManager = A.Fake<NormalizedDataManager>();
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfSimpleType(A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+        }
+
+        [Fact]
+        public void Should_Throw_An_ArgumentNullException_When_The_DenormalizedList_Is_Null()
+        {
+            Assert.Throws<ArgumentNullException>(() => normalizedDataManager.CreateNormalizedDataForListOfSimpleType<string>(null, string.Empty));
+        }
+
+        [Fact]
+        public void Should_Contain_The_DataName()
+        {
+            string dataName = "soliloquy";
+            List<string> denormalizedData = new List<string>();
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedDataForListOfSimpleType(denormalizedData, dataName);
+
+            Assert.Equal(dataName, normalizedData[0][0]);
+        }
+
+        [Fact]
+        public void Should_Contain_The_Unique_Values_When_The_DenormalizedList_Contains_Duplicates()
+        {
+            string dataName = "soliloquy";
+            List<string> denormalizedData = new List<string>() {"This", "List", "Contains", "Some", "Duplicate", "Items", "Duplicate", "Items"};
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedDataForListOfSimpleType(denormalizedData, dataName);
+
+            Assert.Equal(new List<object>() { "soliloquy", "This", "List", "Contains", "Some", "Duplicate", "Items" }, normalizedData[0]);
+        }
+
+        [Fact]
+        public void Should_Not_Contain_Values_When_The_DenormalizedList_Does_Not_Contains_Duplicates()
+        {
+            string dataName = "soliloquy";
+            List<string> denormalizedData = new List<string>() { "This", "List", "Does", "Not", "Contain", "Duplicate", "Items" };
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedDataForListOfSimpleType(denormalizedData, dataName);
+
+            Assert.Equal(new List<object>() { "soliloquy" }, normalizedData[0]);
+        }
+    }
 
     #endregion
 
     #region CreateNormalizedDataForListOfComplexType
+
+    public class CreateNormalizedDataForListOfComplexType
+    {
+        private readonly NormalizedDataManager normalizedDataManager;
+
+        public CreateNormalizedDataForListOfComplexType()
+        {
+            normalizedDataManager = A.Fake<NormalizedDataManager>();
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfComplexType(A<List<Animal>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+        }
+
+        [Fact]
+        public void Should_Throw_An_ArgumentNullException_When_The_DenormalizedList_Is_Null()
+        {
+            Assert.Throws<ArgumentNullException>(() => normalizedDataManager.CreateNormalizedDataForListOfComplexType<Animal>(null, new List<string>(), string.Empty));
+        }
+
+        [Fact]
+        public void Should_Return_The_Formatted_Data_From_Calling_CallCreateNormalizedDataGenerically_For_Each_Property_In_T()
+        {
+            List<List<List<object>>> callCreateNormalizedDataGenericallyReturns = new List<List<List<object>>>()
+            {
+                new List<List<object>>(),
+                new List<List<object>>(),
+                new List<List<object>>(),
+                new List<List<object>>()
+            };
+
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .ReturnsNextFromSequence(callCreateNormalizedDataGenericallyReturns.ToArray());
+
+            List<List<object>> formatNormalizedDataForListOfComplexTypeReturn = new List<List<object>>();
+
+            A.CallTo(() => normalizedDataManager.FormatNormalizedDataForListOfComplexType(A<string>.Ignored, A<List<List<object>>>.Ignored))
+                .Returns(formatNormalizedDataForListOfComplexTypeReturn);
+
+            List<Animal> denormalizedData = new List<Animal>()
+            {
+                
+            };
+
+            List<string> previousDataNames = new List<string>();
+            string dataName = "soliloquy";
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedDataForListOfComplexType(denormalizedData, previousDataNames, dataName);
+
+            Assert.Equal(formatNormalizedDataForListOfComplexTypeReturn, normalizedData);
+        }
+
+    }
+
+    #endregion
+
+    #region FormatNormalizedDataForListOfComplexType
 
     #endregion
 
@@ -172,7 +280,7 @@ namespace Unit.NormalizedData
     #endregion
 
     #region CallCreateNormalizedDataGenerically
-    
+
     public class CallCreateNormalizedDataGenerically
     {
         private readonly NormalizedDataManager normalizedDataManager;
