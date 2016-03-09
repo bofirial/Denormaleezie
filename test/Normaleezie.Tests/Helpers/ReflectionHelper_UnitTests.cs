@@ -11,7 +11,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace Unit.Helpers
+namespace Unit_ReflectionHelper
 {
     #region ConvertList
 

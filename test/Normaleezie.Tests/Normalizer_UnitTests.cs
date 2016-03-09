@@ -15,7 +15,7 @@ using Normaleezie.NormalizedStructure;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace Unit
+namespace Unit_Normalizer
 {
     #region Normalize
 
