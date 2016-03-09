@@ -12,7 +12,7 @@ namespace Normaleezie.Helpers
         {
             if (null == list)
             {
-                throw new ArgumentException(nameof(list) + " must not be null.", nameof(list));
+                throw new ArgumentNullException(nameof(list));
             }
 
             return list.Cast<T>().ToList();
@@ -22,7 +22,7 @@ namespace Normaleezie.Helpers
         {
             if (null == type)
             {
-                throw new ArgumentException(nameof(type) + " must not be null.", nameof(type));
+                throw new ArgumentNullException(nameof(type));
             }
 
             return Type.GetTypeCode(type) != TypeCode.Object;
@@ -32,7 +32,7 @@ namespace Normaleezie.Helpers
         {
             if (null == type)
             {
-                throw new ArgumentException(nameof(type) + " must not be null.", nameof(type));
+                throw new ArgumentNullException(nameof(type));
             }
 
             return null != type.GetInterface("IEnumerable") && type != typeof (string);

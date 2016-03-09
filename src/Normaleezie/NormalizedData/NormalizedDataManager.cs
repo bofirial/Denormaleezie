@@ -23,7 +23,7 @@ namespace Normaleezie.NormalizedData
         {
             if (null == denormalizedList)
             {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+                throw new ArgumentNullException(nameof(denormalizedList));
             }
 
             if (!denormalizedList.Any())
@@ -50,7 +50,7 @@ namespace Normaleezie.NormalizedData
         {
             if (null == denormalizedList)
             {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+                throw new ArgumentNullException(nameof(denormalizedList));
             }
 
             List<object> normalizedData = new List<object>() {dataName};
@@ -102,10 +102,14 @@ namespace Normaleezie.NormalizedData
 
             return new List<List<object>>() {normalizedDataForList};
         }
-
-
+        
         internal virtual List<List<object>> CallCreateNormalizedDataGenerically(List<object> denormalizedList, List<string> previousDataNames, string dataName, Type type)
         {
+            if (null == type)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
             Type reflectionHelperType = _reflectionHelper.GetType();
             MethodInfo typelessConvertListMethod = reflectionHelperType.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
             MethodInfo genericConvertListMethod = typelessConvertListMethod.MakeGenericMethod(type);

@@ -15,12 +15,12 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedList)
             {
-                throw new ArgumentException(nameof(denormalizedList) + " must not be null.", nameof(denormalizedList));
+                throw new ArgumentNullException(nameof(denormalizedList));
             }
 
             if (null == normalizedDataList)
             {
-                throw new ArgumentException(nameof(normalizedDataList) + " must not be null.", nameof(normalizedDataList));
+                throw new ArgumentNullException(nameof(normalizedDataList));
             }
 
             return denormalizedList.Select(denormalizedItem => CreateNormalizedStructureItem(denormalizedItem, normalizedDataList)).ToList();
@@ -30,12 +30,12 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedItem)
             {
-                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+                throw new ArgumentNullException(nameof(denormalizedItem));
             }
 
             if (null == normalizedDataList)
             {
-                throw new ArgumentException(nameof(normalizedDataList) + " must not be null.", nameof(normalizedDataList));
+                throw new ArgumentNullException(nameof(normalizedDataList));
             }
 
             return normalizedDataList.Select(normalizedPropertyData => GetNormalizedItemPropertyObject(denormalizedItem, normalizedPropertyData)).ToList();
@@ -45,12 +45,12 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedItem)
             {
-                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+                throw new ArgumentNullException(nameof(denormalizedItem));
             }
 
             if (null == normalizedPropertyData || !normalizedPropertyData.Any())
             {
-                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+                throw new ArgumentNullException(nameof(normalizedPropertyData));
             }
 
             string propertyName = (string)normalizedPropertyData[0];
@@ -75,17 +75,17 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedItem)
             {
-                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+                throw new ArgumentNullException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
             }
 
             if (null == normalizedPropertyData)
             {
-                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+                throw new ArgumentNullException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
             }
 
             if (string.IsNullOrEmpty(propertyName))
             {
-                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+                throw new ArgumentNullException(nameof(propertyName) + " must not be null.", nameof(propertyName));
             }
 
             PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(propertyName);
@@ -111,17 +111,17 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedItem)
             {
-                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+                throw new ArgumentNullException(nameof(denormalizedItem));
             }
 
             if (null == normalizedPropertyData)
             {
-                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+                throw new ArgumentNullException(nameof(normalizedPropertyData));
             }
 
             if (string.IsNullOrEmpty(propertyName))
             {
-                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             string[] propertyNameParts = propertyName.Split('~');
@@ -156,17 +156,17 @@ namespace Normaleezie.NormalizedStructure
         {
             if (null == denormalizedItem)
             {
-                throw new ArgumentException(nameof(denormalizedItem) + " must not be null.", nameof(denormalizedItem));
+                throw new ArgumentNullException(nameof(denormalizedItem));
             }
 
             if (null == normalizedPropertyData)
             {
-                throw new ArgumentException(nameof(normalizedPropertyData) + " must not be null.", nameof(normalizedPropertyData));
+                throw new ArgumentNullException(nameof(normalizedPropertyData));
             }
 
             if (string.IsNullOrEmpty(propertyName))
             {
-                throw new ArgumentException(nameof(propertyName) + " must not be null.", nameof(propertyName));
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             string[] propertyNameParts = propertyName.Split('.');

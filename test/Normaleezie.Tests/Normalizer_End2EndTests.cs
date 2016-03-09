@@ -11,13 +11,13 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace nEZ.E2E
+namespace E2E
 {
-    public class When_Calling_Normalize_With_A_Null_Object
+    public class Normalize_With_A_Null_Object
     {
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_Null_Object()
+        public Normalize_With_A_Null_Object()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -25,18 +25,19 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_An_Empty_List()
+        public void Should_Return_An_Empty_List()
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.Empty(normalizedForm);
         }
     }
-    public class When_Calling_Normalize_With_A_List_Of_Animals
+
+    public class Normalize_With_A_Type_Containing_Only_Simple_Properties
     {
         private readonly List<Animal> animals;
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_List_Of_Animals()
+        public Normalize_With_A_Type_Containing_Only_Simple_Properties()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -54,7 +55,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
+        public void Should_Return_A_List_In_Normalized_Form()
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
@@ -73,19 +74,19 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        public void Should_Reduce_The_String_Length_When_Serialized()
         {
             Assert.True(JsonConvert.SerializeObject(normalizedForm).Length < JsonConvert.SerializeObject(animals).Length);
         }
     }
 
 
-    public class When_Calling_Normalize_With_A_List_Of_Books
+    public class Normalize_With_A_Type_Containing_A_DateTime
     {
         private readonly List<Book> books;
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_List_Of_Books()
+        public Normalize_With_A_Type_Containing_A_DateTime()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -134,7 +135,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
+        public void Should_Return_A_List_In_Normalized_Form()
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
@@ -168,18 +169,18 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        public void Should_Reduce_The_String_Length_When_Serialized()
         {
             Assert.True(JsonConvert.SerializeObject(normalizedForm).Length < JsonConvert.SerializeObject(books).Length);
         }
     }
 
-    public class When_Calling_Normalize_With_A_List_Of_Bookmarks
+    public class Normalize_With_A_Type_That_Contains_A_Complex_Property
     {
         private readonly List<BookMark> bookMarks;
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_List_Of_Bookmarks()
+        public Normalize_With_A_Type_That_Contains_A_Complex_Property()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -276,7 +277,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
+        public void Should_Return_A_List_In_Normalized_Form()
         {
             Assert.IsType(typeof (List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
@@ -311,7 +312,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        public void Should_Reduce_The_String_Length_When_Serialized()
         {
             string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
             string serializedJson = JsonConvert.SerializeObject(bookMarks);
@@ -320,12 +321,12 @@ namespace nEZ.E2E
         }
     }
 
-    public class When_Calling_Normalize_With_A_List_Of_Zoos
+    public class Normalize_With_A_Type_That_Contains_A_List_Property
     {
         private readonly List<Zoo> zoos;
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_List_Of_Zoos()
+        public Normalize_With_A_Type_That_Contains_A_List_Property()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -355,7 +356,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
+        public void Should_Return_A_List_In_Normalized_Form()
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
@@ -379,7 +380,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        public void Should_Reduce_The_String_Length_When_Serialized()
         {
             string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
             string serializedJson = JsonConvert.SerializeObject(zoos);
@@ -388,12 +389,12 @@ namespace nEZ.E2E
         }
     }
 
-    public class When_Calling_Normalize_With_A_List_Of_List_Of_Books
+    public class Normalize_With_A_Type_That_Is_A_List
     {
         private readonly List<List<Book>> libraries;
         private readonly List<List<List<object>>> normalizedForm;
 
-        public When_Calling_Normalize_With_A_List_Of_List_Of_Books()
+        public Normalize_With_A_Type_That_Is_A_List()
         {
             Normalizer normalizer = new Normalizer();
 
@@ -447,7 +448,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Return_A_List_In_Normalized_Form()
+        public void Should_Return_A_List_In_Normalized_Form()
         {
             Assert.IsType(typeof (List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
@@ -484,7 +485,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void The_Normalized_Form_Should_Reduce_The_String_Length_When_Serialized()
+        public void Should_Reduce_The_String_Length_When_Serialized()
         {
             string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
             string serializedJson = JsonConvert.SerializeObject(libraries);
@@ -493,12 +494,12 @@ namespace nEZ.E2E
         }
     }
 
-    public class When_Calling_Normalize_With_A_List_Of_People_Containing_A_Circular_Reference
+    public class Normalize_With_A_Type_Containing_A_Circular_Reference
     {
         private readonly List<Person> people;
         private readonly Normalizer normalizer;
 
-        public When_Calling_Normalize_With_A_List_Of_People_Containing_A_Circular_Reference()
+        public Normalize_With_A_Type_Containing_A_Circular_Reference()
         {
             normalizer = new Normalizer();
 
@@ -527,7 +528,7 @@ namespace nEZ.E2E
         }
 
         [Fact]
-        public void It_Should_Throw_An_Exception()
+        public void Should_Throw_An_Exception()
         {
             Assert.ThrowsAny<Exception>(() => normalizer.Normalize(people));
         }
