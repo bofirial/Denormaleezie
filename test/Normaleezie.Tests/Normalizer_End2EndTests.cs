@@ -523,14 +523,65 @@ namespace E2E
             {
                 jennifer
             };
-
-            ;
         }
 
         [Fact]
         public void Should_Throw_An_Exception()
         {
-            Assert.ThrowsAny<Exception>(() => normalizer.Normalize(people));
+            Exception exception = Assert.ThrowsAny<Exception>(() => normalizer.Normalize(people));
+
+            Assert.Equal("Circular Reference Detected in object.", exception.Message);
+        }
+    }
+
+    public class Normalize_An_Object_With_A_List_Of_An_Interface_That_Contains_Multiple_Types
+    {
+        private readonly List<Garage> garages;
+        private readonly List<List<List<object>>> normalizedForm;
+
+        public Normalize_An_Object_With_A_List_Of_An_Interface_That_Contains_Multiple_Types()
+        {
+            Normalizer normalizer = new Normalizer();
+
+            garages = new List<Garage>()
+            {
+                new Garage() {Stall1 = new Car() {Color = "Red", Seats = 4, Tires = 4}, Stall2 = new Motorcycle() {Color = "Green", Tires = 2, HandleBarType = "Leather"}},
+                new Garage() {Stall1 = new Motorcycle() {Color = "Black", HandleBarType = "Plastic", Tires = 2}, Stall2 = new Motorcycle() {Color = "Green", Tires = 2, HandleBarType = "Plastic"}},
+                new Garage() {Stall1 = new Car() {Color = "Green", Seats = 4, Tires = 4}, Stall2 = new Motorcycle() {Color = "Pink", Tires = 2, HandleBarType = "Tasselled"}}
+            };
+
+            normalizedForm = normalizer.Normalize(garages);
+        }
+
+        [Fact]
+        public void Should_Return_A_List_In_Normalized_Form()
+        {
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
+
+            Assert.Equal("Stall1.", normalizedForm[0][0][0]);
+            Assert.Equal(new List<object>() { "Color" }, normalizedForm[0][0][1]);
+            Assert.Equal(new List<object>() { "Tires", 4, 2 }, normalizedForm[0][0][2]);
+
+            Assert.Equal("Stall2.", normalizedForm[0][1][0]);
+            Assert.Equal(new List<object>() { "Color", "Green", "Pink" }, normalizedForm[0][1][1]);
+            Assert.Equal(new List<object>() { "Tires", 2 }, normalizedForm[0][1][2]);
+
+            Assert.Equal(new List<object>() { "Red", 1 }, normalizedForm[1][0][0]);
+            Assert.Equal(new List<object>() { 1, 1 }, normalizedForm[1][0][1]);
+            Assert.Equal(new List<object>() { "Black", 2 }, normalizedForm[1][1][0]);
+            Assert.Equal(new List<object>() { 1, 1 }, normalizedForm[1][1][1]);
+            Assert.Equal(new List<object>() { "Green", 1 }, normalizedForm[1][2][0]);
+            Assert.Equal(new List<object>() { 2, 1 }, normalizedForm[1][2][1]);
+        }
+
+        [Fact]
+        public void Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(garages);
+
+            Assert.True(normalizedJson.Length < serializedJson.Length);
         }
     }
 }
