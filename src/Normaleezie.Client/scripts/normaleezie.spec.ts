@@ -124,4 +124,70 @@ describe('Normaleezie', () => {
         });
     });
     
+    describe('when calling denormalize with a normalized form array containing an array', () => {
+
+        var returnValue: any,
+            json: string = '[[["Animals~", ["Age",20,3,16],["AnimalId"],["Name","Tony","Tania","Zachary"],["Type","Tiger","Zebra"]],["Name"]],[[[[1, 101, 1, 1], [1, 102, 2, 1], [2, 103, 3, 2]],"Columbus Zoo and Aquarium"],[[[3,104,1,1]],"Cincinnati Zoo and Botanical Garden"]]]',
+            normalizedArray: Array<any> = JSON.parse(json);
+
+        beforeEach(() => {
+            returnValue = normaleezie.denormalize(normalizedArray);
+        });
+
+        it('should return an array', () => {
+            expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+
+        it("should equal the object as if it wasn't normalized", () => {
+
+            var expectedValue = JSON.parse('[{"Name":"Columbus Zoo and Aquarium","Animals":[{"AnimalId":101,"Age":20,"Name":"Tony","Type":"Tiger"},{"AnimalId":102,"Age":20,"Name":"Tania","Type":"Tiger"},{"AnimalId":103,"Age":3,"Name":"Zachary","Type":"Zebra"}]},{"Name":"Cincinnati Zoo and Botanical Garden","Animals":[{"AnimalId":104,"Age":16,"Name":"Tony","Type":"Tiger"}]}]');
+
+            expect(returnValue).toEqual(expectedValue);
+        });
+    });
+
+    describe('when calling denormalize with a normalized form array containing a sub-object', () => {
+
+        var returnValue: any,
+            json: string = '[[["Book.", ["Author","J.R.R. Tolkien","Jim Butcher"],["HasRead",true,false],["PublishDate"],["PurchaseLocation","Barnes and Noble","Amazon"],["PurchaseYear",2000,2016],["Series","The Lord of the Rings","The Dresden Files"],["Title"]],["CurrentPage",101,1,300]],[[[1,1,"1954-07-29T00:00:00",1,1,1,"The Fellowship of the Ring"],1],[[1,1,"1954-11-11T00:00:00",1,1,1,"The Two Towers"],2],[[1,1,"1955-10-20T00:00:00",1,1,1,"The Return of the King"],2],[[2,2,"2010-04-06T00:00:00",2,2,2,"Changes"],3],[[2,2,"2011-04-26T00:00:00",2,2,2,"Ghost Story"],2],[[2,2,"2012-11-27T00:00:00",2,2,2,"Cold Days"],2],[[2,2,"2014-05-27T00:00:00",2,2,2,"Skin Game"],2]]]',
+            normalizedArray: Array<any> = JSON.parse(json);
+
+        beforeEach(() => {
+            returnValue = normaleezie.denormalize(normalizedArray);
+        });
+
+        it('should return an array', () => {
+            expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+
+        it("should equal the object as if it wasn't normalized", () => {
+
+            var expectedValue = JSON.parse('[{"Book":{"Title":"The Fellowship of the Ring","Author":"J.R.R. Tolkien","PublishDate":"1954-07-29T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},"CurrentPage":101},{"Book":{"Title":"The Two Towers","Author":"J.R.R. Tolkien","PublishDate":"1954-11-11T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},"CurrentPage":1},{"Book":{"Title":"The Return of the King","Author":"J.R.R. Tolkien","PublishDate":"1955-10-20T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},"CurrentPage":1},{"Book":{"Title":"Changes","Author":"Jim Butcher","PublishDate":"2010-04-06T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2016,"HasRead":false},"CurrentPage":300},{"Book":{"Title":"Ghost Story","Author":"Jim Butcher","PublishDate":"2011-04-26T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2016,"HasRead":false},"CurrentPage":1},{"Book":{"Title":"Cold Days","Author":"Jim Butcher","PublishDate":"2012-11-27T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2016,"HasRead":false},"CurrentPage":1},{"Book":{"Title":"Skin Game","Author":"Jim Butcher","PublishDate":"2014-05-27T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2016,"HasRead":false},"CurrentPage":1}]');
+
+            expect(returnValue).toEqual(expectedValue);
+        });
+    });
+
+    describe('when calling denormalize with a normalized form array of arrays', () => {
+
+        var returnValue: any,
+            json: string = '[[["~",["Author","J.R.R. Tolkien","Jim Butcher"],["HasRead",true,false],["PublishDate"],["PurchaseLocation","Barnes and Noble","Amazon"],["PurchaseYear",2000,2015,2016],["Series","The Lord of the Rings","The Dresden Files"],["Title"]]],[[[[1,1,"1954-07-29T00:00:00",1,1,1,"The Fellowship of the Ring"],[1,1,"1954-11-11T00:00:00",1,1,1,"The Two Towers"],[1,1,"1955-10-20T00:00:00",1,1,1,"The The Return of the King"]]],[[[2,1,"2000-04-01T00:00:00",2,2,2,"Storm Front"],[2,1,"2001-01-01T00:00:00",2,2,2,"Fool Moon"],[2,1,"2001-09-01T00:00:00",2,2,2,"Grave Peril"]]]]]',
+            normalizedArray: Array<any> = JSON.parse(json);
+
+        beforeEach(() => {
+            returnValue = normaleezie.denormalize(normalizedArray);
+        });
+
+        it('should return an array', () => {
+            expect(Array.isArray(returnValue)).toBeTruthy();
+        });
+
+        it("should equal the object as if it wasn't normalized", () => {
+
+            var expectedValue = JSON.parse('[[{"Title":"The Fellowship of the Ring","Author":"J.R.R. Tolkien","PublishDate":"1954-07-29T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},{"Title":"The Two Towers","Author":"J.R.R. Tolkien","PublishDate":"1954-11-11T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true},{"Title":"The The Return of the King","Author":"J.R.R. Tolkien","PublishDate":"1955-10-20T00:00:00","Series":"The Lord of the Rings","PurchaseLocation":"Barnes and Noble","PurchaseYear":2000,"HasRead":true}],[{"Title":"Storm Front","Author":"Jim Butcher","PublishDate":"2000-04-01T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2015,"HasRead":true},{"Title":"Fool Moon","Author":"Jim Butcher","PublishDate":"2001-01-01T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2015,"HasRead":true},{"Title":"Grave Peril","Author":"Jim Butcher","PublishDate":"2001-09-01T00:00:00","Series":"The Dresden Files","PurchaseLocation":"Amazon","PurchaseYear":2015,"HasRead":true}]]');
+
+            expect(returnValue).toEqual(expectedValue);
+        });
+    });
+    
 });
