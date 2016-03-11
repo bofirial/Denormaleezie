@@ -132,7 +132,7 @@ namespace Unit_Normalizer
             A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
                 .Returns(normalizedDataList);
 
-            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructure(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
                 .Returns(normalizedStructureList);
 
             List<object> animals = new List<object>()
@@ -152,7 +152,7 @@ namespace Unit_Normalizer
                 .WhenArgumentsMatch(args => args[0] == animals && args[1] == null && (string)args[2] == string.Empty)
                 .MustHaveHappened(Repeated.Exactly.Once);
 
-            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureList(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructure(A<List<object>>.Ignored, A<List<List<object>>>.Ignored))
                 .WhenArgumentsMatch(args => args[0] == animals && args[1] == normalizedDataList)
                 .MustHaveHappened(Repeated.Exactly.Once);
         }
