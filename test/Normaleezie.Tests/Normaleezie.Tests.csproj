@@ -77,6 +77,10 @@
     <Compile Include="Test Classes\Animal.cs" />
     <Compile Include="Test Classes\Book.cs" />
     <Compile Include="Test Classes\BookMark.cs" />
+    <Compile Include="Test Classes\Car.cs" />
+    <Compile Include="Test Classes\Garage.cs" />
+    <Compile Include="Test Classes\IVehicle.cs" />
+    <Compile Include="Test Classes\Motorcycle.cs" />
     <Compile Include="Test Classes\Person.cs" />
     <Compile Include="Test Classes\Pet.cs" />
     <Compile Include="Test Classes\Zoo.cs" />

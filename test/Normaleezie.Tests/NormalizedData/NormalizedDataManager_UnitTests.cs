@@ -453,6 +453,35 @@ namespace Unit_NormalizedDataManager
             Assert.Throws<ArgumentNullException>(() => normalizedDataManager.CallCreateNormalizedDataGenerically(new List<object>(), new List<string>(), string.Empty, null));
         }
 
+        /// <summary>
+        /// This is needed because exceptions thrown through Reflection get wrapped in an exception...
+        /// </summary>
+        [Fact]
+        public void Should_Throw_The_Exception_When_CreateNormalizedData_Throws_An_Exception()
+        {
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .CallsBaseMethod();
+
+            Exception exception = new Exception("This is the Exception!");
+
+            List<string> convertListReturn = new List<string>();
+
+            A.CallTo(() => reflectionHelper.ConvertList<string>(A<List<object>>.Ignored))
+                .Returns(convertListReturn);
+
+            A.CallTo(() => normalizedDataManager.CreateNormalizedData(A<List<string>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .Throws(ex => exception);
+
+            List<object> denormalizedData = new List<object>() { };
+            List<string> previousDataNames = new List<string>();
+            string dataName = "soliloquy";
+            Type type = typeof(string);
+
+            Exception thrownException = Assert.Throws<Exception>(() => normalizedDataManager.CallCreateNormalizedDataGenerically(denormalizedData, previousDataNames, dataName, type));
+
+            Assert.Equal(exception, thrownException);
+        }
+
         [Fact]
         public void Should_Call_ConvertList_And_CreateNormalizedData_With_The_Correct_Generic_Type__String()
         {
