@@ -104,6 +104,11 @@ namespace Normaleezie.NormalizedData
 
         internal virtual List<List<object>> CreateNormalizedDataForListOfIEnumerableType<T>(List<T> denormalizedList, List<string> previousDataNames, string dataName)
         {
+            if (null == denormalizedList)
+            {
+                throw new ArgumentNullException(nameof(denormalizedList));
+            }
+
             List<object> listValues = denormalizedList.SelectMany(i => (IEnumerable<object>) i).ToList();
 
             List<object> normalizedDataForList = new List<object>() {dataName + "~"};
