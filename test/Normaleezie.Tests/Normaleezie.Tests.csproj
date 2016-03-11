@@ -68,6 +68,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ReflectionHelper_UnitTests.cs" />
+    <Compile Include="NormalizedData\NormalizedDataManager_UnitTests.cs" />
+    <Compile Include="NormalizedStructure\NormalizedStructureManager_UnitTests.cs" />
     <Compile Include="Normalizer_End2EndTests.cs" />
     <Compile Include="Normalizer_UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

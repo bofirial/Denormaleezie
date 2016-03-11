@@ -11,11 +11,28 @@ namespace normaleezie {
                 propName = normalizedPropertyData[0],
                 propValue = normalizedStructureItem[i];
 
-            if (normalizedPropertyData.length > 1) {
+            if (propName.substr(-1) === '~') {
+                propName = propName.substr(0, propName.length - 1);
+                propValue = [];
+
+                for (var subNormalizedStructureItem of normalizedStructureItem[i]) {
+                    propValue.push(createDenormalizedItem(normalizedPropertyData.slice(1), subNormalizedStructureItem));
+                }
+            }
+            else
+                if (propName.substr(-1) === '.') {
+                    propName = propName.substr(0, propName.length - 1);
+                    propValue = createDenormalizedItem(normalizedPropertyData.slice(1), normalizedStructureItem[i]);
+                }
+            else if (normalizedPropertyData.length > 1) {
                 propValue = normalizedPropertyData[normalizedStructureItem[i]];
             }
 
-            denormalizedItem[propName] = propValue;
+            if (propName === "") {
+                denormalizedItem = propValue;
+            } else {
+                denormalizedItem[propName] = propValue;
+            }
         }
 
         return denormalizedItem;
