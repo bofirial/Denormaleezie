@@ -79,8 +79,7 @@ namespace Normaleezie.NormalizedData
 
             foreach (PropertyInfo property in tProperties)
             {
-                List<object> propertyValues = denormalizedList.Select(t =>
-                    Convert.ChangeType(property.GetValue(t, null), property.PropertyType)).ToList();
+                List<object> propertyValues = denormalizedList.Select(t => property.GetValue(t, null)).ToList();
                 
                 normalizedDataByProperty.AddRange(CallCreateNormalizedDataGenerically(propertyValues, previousDataNames, property.Name, property.PropertyType));
             }
@@ -125,17 +124,28 @@ namespace Normaleezie.NormalizedData
                 throw new ArgumentNullException(nameof(type));
             }
 
-            Type reflectionHelperType = _reflectionHelper.GetType();
-            MethodInfo typelessConvertListMethod = reflectionHelperType.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
-            MethodInfo genericConvertListMethod = typelessConvertListMethod.MakeGenericMethod(type);
+            List<List<object>> normalizedData;
 
-            var typedDenormalizedList = genericConvertListMethod.Invoke(_reflectionHelper, new object[] { denormalizedList });
+            try
+            {
+                Type reflectionHelperType = _reflectionHelper.GetType();
+                MethodInfo typelessConvertListMethod = reflectionHelperType.GetMethod("ConvertList", BindingFlags.NonPublic | BindingFlags.Instance);
+                MethodInfo genericConvertListMethod = typelessConvertListMethod.MakeGenericMethod(type);
 
-            Type normalizedDataManagerType = this.GetType();
-            MethodInfo typelessCreateNormalizedData = normalizedDataManagerType.GetMethod("CreateNormalizedData", BindingFlags.NonPublic | BindingFlags.Instance);
-            MethodInfo genericCreateNormalizedData = typelessCreateNormalizedData.MakeGenericMethod(type);
+                var typedDenormalizedList = genericConvertListMethod.Invoke(_reflectionHelper, new object[] { denormalizedList });
 
-            return (List<List<object>>)genericCreateNormalizedData.Invoke(this, new[] { typedDenormalizedList, previousDataNames, dataName });
+                Type normalizedDataManagerType = this.GetType();
+                MethodInfo typelessCreateNormalizedData = normalizedDataManagerType.GetMethod("CreateNormalizedData", BindingFlags.NonPublic | BindingFlags.Instance);
+                MethodInfo genericCreateNormalizedData = typelessCreateNormalizedData.MakeGenericMethod(type);
+
+                normalizedData = (List<List<object>>) genericCreateNormalizedData.Invoke(this, new[] {typedDenormalizedList, previousDataNames, dataName});
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+
+            return normalizedData;
         }
 
         internal virtual void CheckForCircularReferences(ref List<string> previousDataNames, string dataName)
