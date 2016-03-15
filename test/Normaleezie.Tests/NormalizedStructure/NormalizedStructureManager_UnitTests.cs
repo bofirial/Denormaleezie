@@ -261,6 +261,32 @@ namespace Unit_NormalizedStructureManager
 
             Assert.Equal(getNormalizedFieldForSimpleTypeReturn, normalizedField);
         }
+
+        [Fact]
+        public void Should_Return_Data_From_GetNormalizedFieldForSimpleType_When_The_DataName_Is_Null()
+        {
+            object getNormalizedFieldForSimpleTypeReturn = "ReturnObject";
+
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForSimpleType(A<object>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .Returns(getNormalizedFieldForSimpleTypeReturn);
+
+            Animal denormalizedItem = new Animal() { AnimalId = 1 };
+
+            List<object> normalizedDataItem = new List<object>() { null };
+
+            object normalizedField = normalizedStructureManager.GetNormalizedField(denormalizedItem, normalizedDataItem);
+
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForComplexType(A<object>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .MustNotHaveHappened();
+
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForIEnumerableType(A<object>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .MustNotHaveHappened();
+
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForSimpleType(A<object>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            Assert.Equal(getNormalizedFieldForSimpleTypeReturn, normalizedField);
+        }
     }
 
     #endregion
@@ -313,6 +339,21 @@ namespace Unit_NormalizedStructureManager
             object normalizedField = normalizedStructureManager.GetNormalizedFieldForSimpleType(denormalizedItem, normalizedDataItem, "Name");
 
             Assert.Equal(2, normalizedField);
+        }
+
+        [Fact]
+        public void Should_Use_The_DenormalizedItem_When_DataName_Is_Empty()
+        {
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForSimpleType(A<int>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            int denormalizedItem = 100;
+
+            List<object> normalizedDataItem = new List<object>() { "Name", 1, 10, 100 };
+
+            object normalizedField = normalizedStructureManager.GetNormalizedFieldForSimpleType(denormalizedItem, normalizedDataItem, string.Empty);
+
+            Assert.Equal(3, normalizedField);
         }
 
         [Fact]
@@ -401,6 +442,54 @@ namespace Unit_NormalizedStructureManager
                     {
                         return args[0] == denormalizedItemFromList &&
                                (string) ((List<List<object>>) args[1])[0][0] == "DataName" &&
+                               (string)((List<List<object>>)args[1])[1][0] == "DataNameNumberTwo" &&
+                               (string)((List<List<object>>)args[1])[1][1] == "SomeData";
+                    })
+                    .MustHaveHappened(Repeated.Exactly.Once);
+            }
+
+            Assert.Equal(createNormalizedStructureItemReturn, normalizedField);
+        }
+
+        [Fact]
+        public void Should_Call_CreateNormalizedStructureItem_For_Each_Item_Returned_From_Calling_GetTargetDenormalizedItemByDataName_When_Type_Is_A_List_Of_Simple_Type()
+        {
+            Animal denormalizedItem = new Animal() { Name = "Fluffy" };
+
+            List<object> normalizedDataItem = new List<object>() { "Name", new List<object>() { "DataName" }, new List<object>() { "DataNameNumberTwo", "SomeData" } };
+
+            string dataName = "Name";
+
+            List<int> getTargetDenormalizedItemByDataNameReturn = new List<int>(){ 1, 2 };
+
+            A.CallTo(() => normalizedStructureManager.GetTargetDenormalizedItemByDataName(A<Animal>.Ignored, A<string>.Ignored, A<char>.Ignored))
+                .Returns(getTargetDenormalizedItemByDataNameReturn);
+
+            List<List<object>> createNormalizedStructureItemReturn = new List<List<object>>()
+            {
+                new List<object>(),
+                new List<object>()
+            };
+
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureItem(A<object>.Ignored, A<List<List<object>>>.Ignored))
+                .ReturnsNextFromSequence(createNormalizedStructureItemReturn.ToArray());
+
+            object normalizedField = normalizedStructureManager.GetNormalizedFieldForIEnumerableType(denormalizedItem, normalizedDataItem, dataName);
+
+            A.CallTo(() => normalizedStructureManager.GetTargetDenormalizedItemByDataName(A<Animal>.Ignored, A<string>.Ignored, A<char>.Ignored))
+                .WhenArgumentsMatch(args => args[0] == denormalizedItem && (string)args[1] == dataName && (char)args[2] == '~')
+                .MustHaveHappened(Repeated.Exactly.Once);
+
+            A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureItem(A<object>.Ignored, A<List<List<object>>>.Ignored))
+                .MustHaveHappened(Repeated.Exactly.Times(getTargetDenormalizedItemByDataNameReturn.Count));
+
+            foreach (var denormalizedItemFromList in getTargetDenormalizedItemByDataNameReturn)
+            {
+                A.CallTo(() => normalizedStructureManager.CreateNormalizedStructureItem(A<object>.Ignored, A<List<List<object>>>.Ignored))
+                    .WhenArgumentsMatch(args =>
+                    {
+                        return (int)args[0] == denormalizedItemFromList &&
+                               (string)((List<List<object>>)args[1])[0][0] == "DataName" &&
                                (string)((List<List<object>>)args[1])[1][0] == "DataNameNumberTwo" &&
                                (string)((List<List<object>>)args[1])[1][1] == "SomeData";
                     })

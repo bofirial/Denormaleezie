@@ -396,8 +396,42 @@ namespace Unit_NormalizedDataManager
                             ((List<object>)args[0])[1] == denormalizedList[1][0] &&
                             ((List<object>)args[0])[2] == denormalizedList[1][1] &&
                             args[1] == previousDataNames &&
-                            args[2] == null &&
+                            (string) args[2] == string.Empty &&
                             (Type) args[3] == typeof (Animal);
+                })
+                .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Should_Call_CallCreateNormalizedDataGenerically_With_The_Data_In_The_List_When_The_List_Is_Of_A_Simple_Type()
+        {
+            A.CallTo(() => normalizedDataManager.CreateNormalizedDataForListOfIEnumerableType(A<List<List<int>>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            List<List<object>> callCreateNormalizedDataGenericallyReturn = new List<List<object>>();
+
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .Returns(callCreateNormalizedDataGenericallyReturn);
+
+            List<List<int>> denormalizedList = new List<List<int>>()
+            {
+                new List<int>() { 1 },
+                new List<int>() { 1, 2 },
+            };
+            List<string> previousDataNames = new List<string>();
+            string dataName = "Astronomical";
+
+            List<List<object>> normalizedData = normalizedDataManager.CreateNormalizedDataForListOfIEnumerableType(denormalizedList, previousDataNames, dataName);
+
+            A.CallTo(() => normalizedDataManager.CallCreateNormalizedDataGenerically(A<List<object>>.Ignored, A<List<string>>.Ignored, A<string>.Ignored, A<Type>.Ignored))
+                .WhenArgumentsMatch(args =>
+                {
+                    return (int)((List<object>)args[0])[0] == denormalizedList[0][0] &&
+                            (int)((List<object>)args[0])[1] == denormalizedList[1][0] &&
+                            (int)((List<object>)args[0])[2] == denormalizedList[1][1] &&
+                            args[1] == previousDataNames &&
+                            (string) args[2] == string.Empty &&
+                            (Type)args[3] == typeof(int);
                 })
                 .MustHaveHappened(Repeated.Exactly.Once);
         }

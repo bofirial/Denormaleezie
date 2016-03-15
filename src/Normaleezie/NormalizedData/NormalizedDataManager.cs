@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -108,11 +109,11 @@ namespace Normaleezie.NormalizedData
                 throw new ArgumentNullException(nameof(denormalizedList));
             }
 
-            List<object> listValues = denormalizedList.SelectMany(i => (IEnumerable<object>) i).ToList();
+            List<object> listValues = denormalizedList.SelectMany(i => ((IEnumerable)i).Cast<object>()).ToList();
 
             List<object> normalizedDataForList = new List<object>() {dataName + "~"};
 
-            normalizedDataForList.AddRange(CallCreateNormalizedDataGenerically(listValues, previousDataNames, null, typeof(T).GetGenericArguments().First()));
+            normalizedDataForList.AddRange(CallCreateNormalizedDataGenerically(listValues, previousDataNames, string.Empty, typeof(T).GetGenericArguments().First()));
 
             return new List<List<object>>() {normalizedDataForList};
         }
