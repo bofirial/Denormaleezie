@@ -648,4 +648,56 @@ namespace E2E
             Assert.True(normalizedJson.Length < serializedJson.Length);
         }
     }
+
+    public class Normalize_An_Object_With_A_List_Of_A_Complex_Type_Containing_A_List_Of_Simple_Types
+    {
+        private readonly List<Bank> banks;
+        private readonly List<List<List<object>>> normalizedForm;
+
+        public Normalize_An_Object_With_A_List_Of_A_Complex_Type_Containing_A_List_Of_Simple_Types()
+        {
+            Normalizer normalizer = new Normalizer();
+
+            banks = new List<Bank>()
+            {
+                new Bank() {Name = "Chase", AccountNumbers = new List<int>() {1000, 2000} },
+                new Bank() {Name = "Chase", AccountNumbers = new List<int>() { 10000, 20000 } },
+                new Bank() {Name = "Fifth Third", AccountNumbers = new List<int>() { 1000, 2000 } }
+            };
+
+            normalizedForm = normalizer.Normalize(banks);
+        }
+
+        [Fact]
+        public void Should_Return_A_List_In_Normalized_Form()
+        {
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
+
+            Assert.Equal("AccountNumbers~", normalizedForm[0][0][0]);
+            Assert.Equal(new List<object>() {"", 1000, 2000, 10000, 20000}, normalizedForm[0][0][1]);
+            Assert.Equal(new List<object>() { "Name", "Chase", "Fifth Third" }, normalizedForm[0][1]);
+
+            Assert.Equal(new List<object>() { 1 }, ((List<List<object>>)normalizedForm[1][0][0])[0]);
+            Assert.Equal(new List<object>() { 2 }, ((List<List<object>>)normalizedForm[1][0][0])[1]);
+            Assert.Equal(1, normalizedForm[1][0][1]);
+
+            Assert.Equal(new List<object>() { 3 }, ((List<List<object>>)normalizedForm[1][1][0])[0]);
+            Assert.Equal(new List<object>() { 4 }, ((List<List<object>>)normalizedForm[1][1][0])[1]);
+            Assert.Equal(1, normalizedForm[1][1][1]);
+
+            Assert.Equal(new List<object>() { 1 }, ((List<List<object>>)normalizedForm[1][2][0])[0]);
+            Assert.Equal(new List<object>() { 2 }, ((List<List<object>>)normalizedForm[1][2][0])[1]);
+            Assert.Equal(2, normalizedForm[1][2][1]);
+        }
+
+        [Fact]
+        public void Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(banks);
+
+            Assert.True(normalizedJson.Length < serializedJson.Length);
+        }
+    }
 }
