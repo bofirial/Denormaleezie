@@ -4,27 +4,10 @@ var normaleezie;
         var denormalizedItem = {};
         for (var i = 0; i < normalizedDataList.length; i++) {
             var normalizedPropertyData = normalizedDataList[i], propName = normalizedPropertyData[0], propValue = normalizedStructureItem[i];
-            if (propName.substr(-1) === '~') {
-                propName = propName.substr(0, propName.length - 1);
-                propValue = [];
-                for (var _i = 0, _a = normalizedStructureItem[i]; _i < _a.length; _i++) {
-                    var subNormalizedStructureItem = _a[_i];
-                    propValue.push(createDenormalizedItem(normalizedPropertyData.slice(1), subNormalizedStructureItem));
-                }
-            }
-            else if (propName.substr(-1) === '.') {
-                propName = propName.substr(0, propName.length - 1);
-                propValue = createDenormalizedItem(normalizedPropertyData.slice(1), normalizedStructureItem[i]);
-            }
-            else if (normalizedPropertyData.length > 1) {
+            if (normalizedPropertyData.length > 1) {
                 propValue = normalizedPropertyData[normalizedStructureItem[i]];
             }
-            if (propName === "") {
-                denormalizedItem = propValue;
-            }
-            else {
-                denormalizedItem[propName] = propValue;
-            }
+            denormalizedItem[propName] = propValue;
         }
         return denormalizedItem;
     }
