@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Normaleezie")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A DotNet and Typescript/Javascript Library to Denormalize and Normalize Data in a JSON Array Format.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("James Schafer")]
 [assembly: AssemblyProduct("Normaleezie")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
