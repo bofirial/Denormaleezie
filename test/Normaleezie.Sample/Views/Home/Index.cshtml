@@ -1,0 +1,16 @@
+﻿
+<div class="row">
+    <div class="zip-codes col-sm-6" data-url="@Url.RouteUrl("DefaultApi", new {httproute = "", controller = "ZipCode"})">
+        <h3>Zip Codes</h3>
+        @Html.Partial("_ZipCodeDisplay")
+    </div>
+
+    <div class="normalized-zip-codes col-sm-6" data-url="@Url.RouteUrl("DefaultApi", new {httproute = "", controller = "NormalizedZipCode"})">
+        <h3>Normalized Zip Codes</h3>
+        @Html.Partial("_ZipCodeDisplay")
+    </div></div>
+
+@section scripts
+{
+    @Scripts.Render("~/Scripts/site.js")
+}
