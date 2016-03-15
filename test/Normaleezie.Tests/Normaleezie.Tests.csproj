@@ -69,6 +69,7 @@
     <Compile Include="Normalizer_UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test Classes\Animal.cs" />
+    <Compile Include="Test Classes\Bank.cs" />
     <Compile Include="Test Classes\Book.cs" />
     <Compile Include="Test Classes\BookMark.cs" />
     <Compile Include="Test Classes\Car.cs" />
@@ -85,15 +86,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Normaleezie\Normaleezie.csproj">
       <Project>{d9ed70e1-92c7-46f1-b533-29992898eb41}</Project>
       <Name>Normaleezie</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

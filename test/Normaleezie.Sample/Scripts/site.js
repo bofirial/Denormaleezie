@@ -38,7 +38,7 @@ $(function () {
                                 zipCode.City + '</td><td>' +
                                 zipCode.State + '</td><td>' +
                                 zipCode.Population + '</td><td>' +
-                                //zipCode.LatitudeLongitude[0] + ', ' + zipCode.LatitudeLongitude[1] +
+                                zipCode.LatitudeLongitude[0] + ', ' + zipCode.LatitudeLongitude[1] +
                                 '</td></tr>');
                         }
 

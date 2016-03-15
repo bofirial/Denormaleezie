@@ -16,15 +16,18 @@ namespace Normaleezie.Sample.Models
         public ZipCodeDescription(ZipCodeDTO zipCodeDto)
         {
             City = zipCodeDto.City;
-            //LatitudeLongitude = zipCodeDto.LatitudeLongitude;
+            LatitudeLongitude = zipCodeDto.LatitudeLongitude;
             Population = zipCodeDto.Population;
             State = zipCodeDto.State;
             ZipCode = zipCodeDto.ZipCode;
+
+            LatitudeLongitude[0] = (float)Math.Round(LatitudeLongitude[0], 2);
+            LatitudeLongitude[1] = (float)Math.Round(LatitudeLongitude[1], 2);
         }
 
         public string City { get; set; }
         
-        //public List<float> LatitudeLongitude { get; set; }
+        public List<float> LatitudeLongitude { get; set; }
         
         public int Population { get; set; }
         

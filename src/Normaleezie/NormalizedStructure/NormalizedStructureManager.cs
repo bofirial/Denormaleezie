@@ -39,12 +39,12 @@ namespace Normaleezie.NormalizedStructure
 
             string dataName = (string)normalizedDataItem[0];
 
-            if (dataName.EndsWith("."))
+            if (!string.IsNullOrEmpty(dataName) && dataName.EndsWith("."))
             {
                 return GetNormalizedFieldForComplexType(denormalizedItem, normalizedDataItem, dataName);
             }
 
-            if (dataName.EndsWith("~"))
+            if (!string.IsNullOrEmpty(dataName) && dataName.EndsWith("~"))
             {
                 return GetNormalizedFieldForIEnumerableType(denormalizedItem, normalizedDataItem, dataName);
             }
@@ -94,7 +94,7 @@ namespace Normaleezie.NormalizedStructure
                 throw new ArgumentNullException(nameof(normalizedDataItem));
             }
 
-            IEnumerable<object> list = (IEnumerable<object>)GetTargetDenormalizedItemByDataName(denormalizedItem, dataName, '~');
+            IEnumerable<object> list = ((IEnumerable)GetTargetDenormalizedItemByDataName(denormalizedItem, dataName, '~')).Cast<object>();
 
             List<List<object>> normalizedDataForListItem = normalizedDataItem.Skip(1).Cast<List<object>>().ToList();
 

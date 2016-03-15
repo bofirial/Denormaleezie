@@ -11,8 +11,8 @@ namespace Normaleezie.Sample.Models
         [JsonProperty("city")]
         public string City { get; set; }
 
-        //[JsonProperty("loc")]
-        //public List<float> LatitudeLongitude { get; set; }
+        [JsonProperty("loc")]
+        public List<float> LatitudeLongitude { get; set; }
 
         [JsonProperty("pop")]
         public int Population { get; set; }
