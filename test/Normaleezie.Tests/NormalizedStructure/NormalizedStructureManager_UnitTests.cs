@@ -316,6 +316,21 @@ namespace Unit_NormalizedStructureManager
         }
 
         [Fact]
+        public void Should_Use_The_DenormalizedItem_When_DataName_Is_Empty()
+        {
+            A.CallTo(() => normalizedStructureManager.GetNormalizedFieldForSimpleType(A<int>.Ignored, A<List<object>>.Ignored, A<string>.Ignored))
+                .CallsBaseMethod();
+
+            int denormalizedItem = 100;
+
+            List<object> normalizedDataItem = new List<object>() { "Name", 1, 10, 100 };
+
+            object normalizedField = normalizedStructureManager.GetNormalizedFieldForSimpleType(denormalizedItem, normalizedDataItem, string.Empty);
+
+            Assert.Equal(3, normalizedField);
+        }
+
+        [Fact]
         public void Should_Throw_An_Exception_When_The_NormalizedDataItem_Does_Not_Contain_The_DenormalizedItem_Value()
         {
             Animal denormalizedItem = new Animal() { Name = "Fluffy" };

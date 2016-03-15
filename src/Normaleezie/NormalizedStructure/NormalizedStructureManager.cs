@@ -63,9 +63,14 @@ namespace Normaleezie.NormalizedStructure
             {
                 throw new ArgumentNullException(nameof(normalizedDataItem) + " must not be null.", nameof(normalizedDataItem));
             }
+            
+            object val = denormalizedItem;
 
-            PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(dataName);
-            object val = propInfo.GetValue(denormalizedItem, null);
+            if (!string.IsNullOrEmpty(dataName))
+            {
+                PropertyInfo propInfo = denormalizedItem.GetType().GetProperty(dataName);
+                val = propInfo.GetValue(denormalizedItem, null);
+            }
 
             if (1 == normalizedDataItem.Count)
             {

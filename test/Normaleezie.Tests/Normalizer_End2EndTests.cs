@@ -620,6 +620,23 @@ namespace E2E
         {
             Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
             Assert.NotEmpty(normalizedForm);
+
+            Assert.Equal(new List<object>() {"", 3.14159265354, 2.0, 3.0, 4.0, 5.0}, normalizedForm[0][0]);
+
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][0]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][1]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][2]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][3]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][4]);
+            Assert.Equal(new List<object>() { 2 }, normalizedForm[1][5]);
+            Assert.Equal(new List<object>() { 3 }, normalizedForm[1][6]);
+            Assert.Equal(new List<object>() { 4 }, normalizedForm[1][7]);
+            Assert.Equal(new List<object>() { 5 }, normalizedForm[1][8]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][9]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][10]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][11]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][12]);
+            Assert.Equal(new List<object>() { 1 }, normalizedForm[1][13]);
         }
 
         [Fact]
