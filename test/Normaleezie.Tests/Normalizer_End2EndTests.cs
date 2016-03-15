@@ -584,4 +584,51 @@ namespace E2E
             Assert.True(normalizedJson.Length < serializedJson.Length);
         }
     }
+
+    public class Normalize_An_Object_With_A_List_Of_Simple_Types
+    {
+        private readonly List<double> numbers;
+        private readonly List<List<List<object>>> normalizedForm;
+
+        public Normalize_An_Object_With_A_List_Of_Simple_Types()
+        {
+            Normalizer normalizer = new Normalizer();
+
+            numbers = new List<double>()
+            {
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+                2,
+                3,
+                4,
+                5,
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+                3.14159265354,
+            };
+
+            normalizedForm = normalizer.Normalize(numbers);
+        }
+
+        [Fact]
+        public void Should_Return_A_List_In_Normalized_Form()
+        {
+            Assert.IsType(typeof(List<List<List<object>>>), normalizedForm);
+            Assert.NotEmpty(normalizedForm);
+        }
+
+        [Fact]
+        public void Should_Reduce_The_String_Length_When_Serialized()
+        {
+            string normalizedJson = JsonConvert.SerializeObject(normalizedForm);
+            string serializedJson = JsonConvert.SerializeObject(numbers);
+
+            Assert.True(normalizedJson.Length < serializedJson.Length);
+        }
+    }
 }
