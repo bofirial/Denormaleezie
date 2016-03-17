@@ -16,7 +16,7 @@ $(function () {
 
                 var firstTransfer = new Date().getTime();
 
-                $('.dataSize', $container).text(Number(request.getResponseHeader("Content-Length") / 1024).toFixed(2));
+                $('.dataSize', $container).text(JSON.stringify(data).length.toLocaleString());
                 $('.transfer', $container).text((firstTransfer - start) / 1000);
 
                 //Hit the Server Twice to get Metrics on server calls w/ and w/o Server Caching.
